@@ -1,0 +1,25 @@
+{
+  "name": "scrapegraph-cli",
+  "version": "1.0.0",
+  "description": "A basic CLI tool built with Node.js",
+  "main": "bin/index.js",
+  "bin": {
+    "scrapegraphai": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "command-line"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "figlet": "^1.10.0",
+    "inquirer": "^8.2.7",
+    "yargs": "^17.7.2"
+  }
+}
