@@ -1,25 +1,39 @@
 {
-  "name": "scrapegraph-cli",
-  "version": "1.0.0",
-  "description": "A basic CLI tool built with Node.js",
-  "main": "bin/index.js",
-  "bin": {
-    "scrapegraphai": "./bin/index.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "cli",
-    "command-line"
-  ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "boxen": "^5.1.2",
-    "chalk": "^4.1.2",
-    "figlet": "^1.10.0",
-    "inquirer": "^8.2.7",
-    "yargs": "^17.7.2"
-  }
+	"name": "scrapegraph-cli",
+	"version": "0.1.0",
+	"description": "ScrapeGraph AI CLI tool",
+	"type": "module",
+	"main": "dist/cli.mjs",
+	"bin": {
+		"scrapegraphai": "dist/cli.mjs"
+	},
+	"scripts": {
+		"dev": "bun run src/cli.ts",
+		"build": "tsup",
+		"lint": "biome check .",
+		"format": "biome format . --write",
+		"test": "bun test",
+		"check": "tsc --noEmit && biome check .",
+		"prepublishOnly": "tsup"
+	},
+	"keywords": ["cli", "scraping", "ai", "scrapegraph"],
+	"author": "ScrapeGraph Team",
+	"license": "ISC",
+	"engines": {
+		"node": ">=22"
+	},
+	"files": ["dist"],
+	"dependencies": {
+		"@clack/prompts": "^0.10.0",
+		"chalk": "^5.4.1",
+		"citty": "^0.1.6",
+		"dotenv": "^17.2.4",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.13.1",
+		"tsup": "^8.3.6",
+		"typescript": "^5.8.2"
+	}
 }

@@ -1,3 +1,4 @@
+.ai/docs
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -40,3 +41,6 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Bun
+bun.lock
