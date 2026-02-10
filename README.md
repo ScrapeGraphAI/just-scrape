@@ -1,5 +1,7 @@
 # ScrapeGraph CLI
 
+<video src="assets/demo.mp4" controls width="100%"></video>
+
 Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling.
 
 ## Tech Stack
