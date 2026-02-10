@@ -1,4 +1,4 @@
-import { describe, test, expect, spyOn, afterEach, mock } from "bun:test";
+import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
 
 mock.module("../src/lib/env.js", () => ({
 	env: { debug: false, timeoutS: 120 },
@@ -167,9 +167,7 @@ describe("smartScraper", () => {
 	});
 
 	test("network error", async () => {
-		fetchSpy = spyOn(globalThis, "fetch").mockRejectedValueOnce(
-			new Error("fetch failed"),
-		);
+		fetchSpy = spyOn(globalThis, "fetch").mockRejectedValueOnce(new Error("fetch failed"));
 		const res = await scrapegraphai.smartScraper(API_KEY, params);
 
 		expect(res.status).toBe("error");
