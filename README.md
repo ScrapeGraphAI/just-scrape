@@ -52,7 +52,7 @@ SGAI_CLI_DEBUG=1 scrapegraphai smart-scraper https://example.com -p "Extract dat
 
 ## Commands
 
-### `smart-scraper` — Extract structured data from a URL
+### `smart-scraper` — Extract structured data from a URL  [docs](https://docs.scrapegraphai.com/services/smartscraper)
 
 ```bash
 scrapegraphai smart-scraper <url> -p "Extract all product names and prices"
@@ -78,7 +78,7 @@ scrapegraphai smart-scraper https://example.com -p "Extract data" \
 | `--headers` | Custom headers as JSON object string |
 | `--plain-text` | Return plain text instead of JSON |
 
-### `search-scraper` — Search the web and extract data
+### `search-scraper` — Search the web and extract data  [docs](https://docs.scrapegraphai.com/services/searchscraper)
 
 ```bash
 scrapegraphai search-scraper "What are the top Python web frameworks?"
@@ -95,7 +95,7 @@ scrapegraphai search-scraper "Python frameworks" --no-extraction --num-results 5
 | `--stealth` | Bypass bot detection (+4 credits) |
 | `--headers` | Custom headers as JSON object string |
 
-### `markdownify` — Convert a webpage to markdown
+### `markdownify` — Convert a webpage to markdown  [docs](https://docs.scrapegraphai.com/services/markdownify)
 
 ```bash
 scrapegraphai markdownify https://example.com/article
@@ -108,7 +108,7 @@ scrapegraphai markdownify https://example.com --render-js --stealth
 | `--stealth` | Bypass bot detection (+4 credits) |
 | `--headers` | Custom headers as JSON object string |
 
-### `crawl` — Crawl and extract from multiple pages
+### `crawl` — Crawl and extract from multiple pages  [docs](https://docs.scrapegraphai.com/services/smartcrawler)
 
 ```bash
 scrapegraphai crawl https://example.com -p "Extract article titles" --max-pages 5 --depth 2
@@ -133,13 +133,13 @@ scrapegraphai crawl https://example.com -p "Extract data" \
 | `--render-js` | Enable JS rendering (+1 credit/page) |
 | `--stealth` | Bypass bot detection (+4 credits) |
 
-### `sitemap` — Get all URLs from a website's sitemap
+### `sitemap` — Get all URLs from a website's sitemap  [docs](https://docs.scrapegraphai.com/services/sitemap)
 
 ```bash
 scrapegraphai sitemap https://example.com
 ```
 
-### `scrape` — Get raw HTML content
+### `scrape` — Get raw HTML content  [docs](https://docs.scrapegraphai.com/services/scrape)
 
 ```bash
 scrapegraphai scrape https://example.com
@@ -153,7 +153,7 @@ scrapegraphai scrape https://example.com --stealth --branding --country-code US
 | `--branding` | Extract branding info (+2 credits) |
 | `--country-code` | ISO country code for geo-targeting |
 
-### `agentic-scraper` — Browser automation with AI
+### `agentic-scraper` — Browser automation with AI  [docs](https://docs.scrapegraphai.com/services/agenticscraper)
 
 ```bash
 scrapegraphai agentic-scraper https://example.com/login \
@@ -217,7 +217,7 @@ scrapegraph-cli/
 │   │   ├── credits.ts
 │   │   └── validate.ts
 │   └── utils/
-│       └── banner.ts               # ASCII banner display
+│       └── banner.ts               # ASCII banner + version from package.json
 ├── dist/                            # Build output (git-ignored)
 │   └── cli.mjs                     # Bundled ESM with shebang
 ├── package.json

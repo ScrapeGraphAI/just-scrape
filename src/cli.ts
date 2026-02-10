@@ -1,13 +1,13 @@
 import "dotenv/config";
 import { defineCommand, runMain } from "citty";
-import { showBanner } from "./utils/banner.js";
+import { getVersion, showBanner } from "./utils/banner.js";
 
 showBanner();
 
 const main = defineCommand({
 	meta: {
 		name: "scrapegraphai",
-		version: "0.1.0",
+		version: getVersion(),
 		description: "ScrapeGraph AI CLI tool",
 	},
 	subCommands: {

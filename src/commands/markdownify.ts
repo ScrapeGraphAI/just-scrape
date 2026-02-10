@@ -29,6 +29,7 @@ export default defineCommand({
 		},
 	},
 	run: async ({ args }) => {
+		log.docs("https://docs.scrapegraphai.com/services/markdownify");
 		const key = await resolveApiKey();
 
 		const params: scrapegraphai.MarkdownifyParams = {

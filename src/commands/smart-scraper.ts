@@ -55,6 +55,7 @@ export default defineCommand({
 		},
 	},
 	run: async ({ args }) => {
+		log.docs("https://docs.scrapegraphai.com/services/smartscraper");
 		const key = await resolveApiKey();
 
 		const params: scrapegraphai.SmartScraperParams = {

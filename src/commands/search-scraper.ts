@@ -37,6 +37,7 @@ export default defineCommand({
 		},
 	},
 	run: async ({ args }) => {
+		log.docs("https://docs.scrapegraphai.com/services/searchscraper");
 		const key = await resolveApiKey();
 
 		const params: scrapegraphai.SearchScraperParams = {

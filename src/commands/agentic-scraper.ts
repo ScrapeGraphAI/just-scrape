@@ -39,6 +39,7 @@ export default defineCommand({
 		},
 	},
 	run: async ({ args }) => {
+		log.docs("https://docs.scrapegraphai.com/services/agenticscraper");
 		const key = await resolveApiKey();
 
 		const params: scrapegraphai.AgenticScraperParams = {

@@ -17,6 +17,7 @@ export default defineCommand({
 		},
 	},
 	run: async ({ args }) => {
+		log.docs("https://docs.scrapegraphai.com/services/sitemap");
 		const key = await resolveApiKey();
 		const s = p.spinner();
 		s.start("Fetching sitemap");

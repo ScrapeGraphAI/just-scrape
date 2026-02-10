@@ -18,6 +18,10 @@ export function result(data: unknown) {
 	console.log(`\n${highlight(JSON.stringify(data, null, 2))}\n`);
 }
 
+export function docs(url: string) {
+	console.log(chalk.dim(`Docs: ${url}`));
+}
+
 export function error(message?: string) {
 	p.log.error(message ?? "Unknown error");
 	process.exit(1);
