@@ -8,7 +8,14 @@ export async function resolveApiKey(): Promise<string> {
 	if (cachedKey) return cachedKey;
 
 	if (env.apiKey) {
-		p.log.info("Using API key from environment");
+		let source = "config (~/.scrapegraphai/config.json)";
+		if (process.env.SGAI_API_KEY) {
+			source = "SGAI_API_KEY env var";
+			try {
+				if (/^SGAI_API_KEY\s*=/m.test(readFileSync(".env", "utf-8"))) source = ".env file";
+			} catch {}
+		}
+		p.log.info(`Using API key from ${source}`);
 		cachedKey = env.apiKey;
 		return env.apiKey;
 	}
