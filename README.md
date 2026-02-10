@@ -17,6 +17,7 @@ Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-po
 | Validation | **zod** v4 |
 | Env | **dotenv** |
 | Lint / Format | **Biome** |
+| Testing | **Bun test** (built-in) |
 | Target | **Node.js 22+**, ESM-only |
 
 ## Setup
@@ -193,6 +194,16 @@ scrapegraphai credits
 scrapegraphai validate
 ```
 
+## Testing
+
+Tests use Bun's built-in test runner with `spyOn(globalThis, "fetch")` to mock all API calls — no network requests, no API key needed.
+
+```bash
+bun test
+```
+
+Covers all SDK functions: success paths, polling, HTTP error mapping (401/402/422/429/500), Zod validation, timeouts, and network failures.
+
 ## Project Structure
 
 ```
@@ -220,6 +231,8 @@ scrapegraph-cli/
 │   │   └── validate.ts
 │   └── utils/
 │       └── banner.ts               # ASCII banner + version from package.json
+├── tests/
+│   └── scrapegraphai.test.ts      # SDK layer tests (mocked fetch)
 ├── dist/                            # Build output (git-ignored)
 │   └── cli.mjs                     # Bundled ESM with shebang
 ├── package.json

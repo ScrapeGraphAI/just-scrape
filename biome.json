@@ -14,6 +14,18 @@
 			"recommended": true
 		}
 	},
+	"overrides": [
+		{
+			"include": ["tests/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	],
 	"files": {
 		"ignore": ["node_modules", "dist", "bun.lock"]
 	}
