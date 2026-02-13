@@ -58,6 +58,16 @@ npx just-scrape --help               # or run without installing
 
 Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
 
+## Coding Agent Skill
+
+Use just-scrape as a skill for AI coding agents via [Vercel's skills.sh](https://skills.sh):
+
+```bash
+bunx skills add https://github.com/ScrapeGraphAI/just-scrape
+```
+
+Browse the skill: [skills.sh/scrapegraphai/just-scrape/just-scrape](https://skills.sh/scrapegraphai/just-scrape/just-scrape)
+
 ## Configuration
 
 The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com).
