@@ -45,20 +45,16 @@ Four ways to provide it (checked in order):
 3. **Config file**: stored in `~/.scrapegraphai/config.json`
 4. **Interactive prompt**: if none of the above are set, the CLI prompts you and saves it to the config file
 
-### Timeout
+### Environment Variables
 
-Set `SGAI_CLI_TIMEOUT_S` to override the default 120s request/polling timeout:
-
-```bash
-export SGAI_CLI_TIMEOUT_S=300
-```
-
-### Debug Logging
-
-Set `SGAI_CLI_DEBUG=1` to enable debug logging (outputs to stderr):
+| Variable | Default | Description |
+|---|---|---|
+| `JUST_SCRAPE_TIMEOUT_S` | `120` | Request/polling timeout in seconds |
+| `JUST_SCRAPE_DEBUG` | `0` | Set to `1` to enable debug logging (outputs to stderr) |
 
 ```bash
-SGAI_CLI_DEBUG=1 just-scrape smart-scraper https://example.com -p "Extract data"
+export JUST_SCRAPE_TIMEOUT_S=300
+JUST_SCRAPE_DEBUG=1 just-scrape smart-scraper https://example.com -p "Extract data"
 ```
 
 ## Commands
