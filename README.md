@@ -3,9 +3,7 @@
 Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com) 💜
 
 
-![Demo](./assets/demo.gif)
-
-![Demo Video](/assets/demo.mp4)
+![Demo Video](/assets/demo.gif)
 
 Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling.
 
