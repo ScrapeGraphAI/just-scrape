@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -15,16 +14,18 @@ export default defineCommand({
 			description: "Website URL",
 			required: true,
 		},
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
-		log.docs("https://docs.scrapegraphai.com/services/sitemap");
-		const key = await resolveApiKey();
-		const s = p.spinner();
-		s.start("Fetching sitemap");
-		const result = await scrapegraphai.sitemap(key, { website_url: args.url });
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+		const out = log.create(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/services/sitemap");
+		const key = await resolveApiKey(!!args.json);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		out.start("Fetching sitemap");
+		const result = await scrapegraphai.sitemap(key, { website_url: args.url });
+		out.stop(result.elapsedMs);
+
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });

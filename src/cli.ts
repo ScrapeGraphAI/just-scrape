@@ -19,6 +19,7 @@ const main = defineCommand({
 		scrape: () => import("./commands/scrape.js").then((m) => m.default),
 		"agentic-scraper": () => import("./commands/agentic-scraper.js").then((m) => m.default),
 		"generate-schema": () => import("./commands/generate-schema.js").then((m) => m.default),
+		history: () => import("./commands/history.js").then((m) => m.default),
 		credits: () => import("./commands/credits.js").then((m) => m.default),
 		validate: () => import("./commands/validate.js").then((m) => m.default),
 	},

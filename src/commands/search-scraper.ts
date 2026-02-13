@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -23,22 +22,15 @@ export default defineCommand({
 			type: "boolean",
 			description: "Return markdown only (2 credits/site instead of 10)",
 		},
-		schema: {
-			type: "string",
-			description: "Output JSON schema (as JSON string)",
-		},
-		stealth: {
-			type: "boolean",
-			description: "Bypass bot detection (+4 credits)",
-		},
-		headers: {
-			type: "string",
-			description: "Custom headers as JSON object string",
-		},
+		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
+		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		headers: { type: "string", description: "Custom headers as JSON object string" },
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
-		log.docs("https://docs.scrapegraphai.com/services/searchscraper");
-		const key = await resolveApiKey();
+		const out = log.create(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/services/searchscraper");
+		const key = await resolveApiKey(!!args.json);
 
 		const params: scrapegraphai.SearchScraperParams = {
 			user_prompt: args.prompt,
@@ -50,14 +42,11 @@ export default defineCommand({
 		if (args.stealth) params.stealth = true;
 		if (args.headers) params.headers = JSON.parse(args.headers);
 
-		const s = p.spinner();
-		s.start("Searching");
-		const result = await scrapegraphai.searchScraper(key, params, (status) => {
-			s.message(`Status: ${status}`);
-		});
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+		out.start("Searching");
+		const result = await scrapegraphai.searchScraper(key, params, out.poll);
+		out.stop(result.elapsedMs);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });

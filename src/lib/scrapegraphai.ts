@@ -3,6 +3,7 @@ import type {
 	ApiResult,
 	CrawlParams,
 	GenerateSchemaParams,
+	HistoryParams,
 	MarkdownifyParams,
 	ScrapeParams,
 	SearchScraperParams,
@@ -14,6 +15,7 @@ import {
 	AgenticScraperSchema,
 	CrawlSchema,
 	GenerateSchemaSchema,
+	HistorySchema,
 	MarkdownifySchema,
 	ScrapeSchema,
 	SearchScraperSchema,
@@ -26,6 +28,7 @@ export type {
 	ApiResult,
 	CrawlParams,
 	GenerateSchemaParams,
+	HistoryParams,
 	MarkdownifyParams,
 	ScrapeParams,
 	SearchScraperParams,
@@ -320,6 +323,19 @@ export async function getCredits(apiKey: string): Promise<ApiResult<unknown>> {
 export async function checkHealth(apiKey: string): Promise<ApiResult<unknown>> {
 	try {
 		const { data, elapsedMs } = await request("GET", "/healthz", apiKey);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export async function history(apiKey: string, params: HistoryParams): Promise<ApiResult<unknown>> {
+	try {
+		const parsed = HistorySchema.parse(params);
+		const qs = new URLSearchParams();
+		qs.set("page", String(parsed.page));
+		qs.set("page_size", String(parsed.page_size));
+		const { data, elapsedMs } = await request("GET", `/history/${parsed.service}?${qs}`, apiKey);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);

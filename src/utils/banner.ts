@@ -24,8 +24,9 @@ const TAGLINE = "  made with ♥ from scrapegraphai team";
 const BANNER_COLOR = "#bd93f9";
 
 export function showBanner() {
-	const text = BANNER.map((line) => chalk.hex(BANNER_COLOR)(line)).join("\n");
+	if (process.argv.includes("--json")) return;
 
+	const text = BANNER.map((line) => chalk.hex(BANNER_COLOR)(line)).join("\n");
 	console.log(text);
 	console.log(chalk.hex(BANNER_COLOR)(TAGLINE));
 	console.log(chalk.hex(BANNER_COLOR)(`v${getVersion()}`));

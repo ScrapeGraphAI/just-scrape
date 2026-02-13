@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -9,14 +8,18 @@ export default defineCommand({
 		name: "validate",
 		description: "Validate your API key (health check)",
 	},
-	run: async () => {
-		const key = await resolveApiKey();
-		const s = p.spinner();
-		s.start("Checking API health");
-		const result = await scrapegraphai.checkHealth(key);
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+	args: {
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
+	},
+	run: async ({ args }) => {
+		const out = log.create(!!args.json);
+		const key = await resolveApiKey(!!args.json);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		out.start("Checking API health");
+		const result = await scrapegraphai.checkHealth(key);
+		out.stop(result.elapsedMs);
+
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });

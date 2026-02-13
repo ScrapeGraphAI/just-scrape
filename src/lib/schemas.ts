@@ -76,3 +76,19 @@ export const AgenticScraperSchema = z.object({
 	ai_extraction: z.boolean().optional(),
 	use_session: z.boolean().optional(),
 });
+
+export const HISTORY_SERVICES = [
+	"markdownify",
+	"smartscraper",
+	"searchscraper",
+	"scrape",
+	"crawl",
+	"agentic-scraper",
+	"sitemap",
+] as const;
+
+export const HistorySchema = z.object({
+	service: z.enum(HISTORY_SERVICES),
+	page: z.number().int().positive().default(1),
+	page_size: z.number().int().positive().max(100).default(10),
+});
