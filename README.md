@@ -4,6 +4,14 @@
 
 Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling.
 
+### Install (npm)
+
+```bash
+npm install -g just-scrape
+```
+
+Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
+
 ## Tech Stack
 
 | Concern | Tool |
@@ -50,7 +58,7 @@ export SGAI_CLI_TIMEOUT_S=300
 Set `SGAI_CLI_DEBUG=1` to enable debug logging (outputs to stderr):
 
 ```bash
-SGAI_CLI_DEBUG=1 scrapegraphai smart-scraper https://example.com -p "Extract data"
+SGAI_CLI_DEBUG=1 just-scrape smart-scraper https://example.com -p "Extract data"
 ```
 
 ## Commands
@@ -58,14 +66,14 @@ SGAI_CLI_DEBUG=1 scrapegraphai smart-scraper https://example.com -p "Extract dat
 ### `smart-scraper` — Extract structured data from a URL  [docs](https://docs.scrapegraphai.com/services/smartscraper)
 
 ```bash
-scrapegraphai smart-scraper <url> -p "Extract all product names and prices"
+just-scrape smart-scraper <url> -p "Extract all product names and prices"
 
 # With JSON schema
-scrapegraphai smart-scraper https://example.com/products -p "Extract products" \
+just-scrape smart-scraper https://example.com/products -p "Extract products" \
   --schema '{"type":"object","properties":{"products":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"price":{"type":"number"}}}}}}'
 
 # With options
-scrapegraphai smart-scraper https://example.com -p "Extract data" \
+just-scrape smart-scraper https://example.com -p "Extract data" \
   --stealth --render-js --scrolls 10 --pages 5
 ```
 
@@ -84,10 +92,10 @@ scrapegraphai smart-scraper https://example.com -p "Extract data" \
 ### `search-scraper` — Search the web and extract data  [docs](https://docs.scrapegraphai.com/services/searchscraper)
 
 ```bash
-scrapegraphai search-scraper "What are the top Python web frameworks?"
+just-scrape search-scraper "What are the top Python web frameworks?"
 
 # Markdown only (cheaper)
-scrapegraphai search-scraper "Python frameworks" --no-extraction --num-results 5
+just-scrape search-scraper "Python frameworks" --no-extraction --num-results 5
 ```
 
 | Option | Description |
@@ -101,8 +109,8 @@ scrapegraphai search-scraper "Python frameworks" --no-extraction --num-results 5
 ### `markdownify` — Convert a webpage to markdown  [docs](https://docs.scrapegraphai.com/services/markdownify)
 
 ```bash
-scrapegraphai markdownify https://example.com/article
-scrapegraphai markdownify https://example.com --render-js --stealth
+just-scrape markdownify https://example.com/article
+just-scrape markdownify https://example.com --render-js --stealth
 ```
 
 | Option | Description |
@@ -114,13 +122,13 @@ scrapegraphai markdownify https://example.com --render-js --stealth
 ### `crawl` — Crawl and extract from multiple pages  [docs](https://docs.scrapegraphai.com/services/smartcrawler)
 
 ```bash
-scrapegraphai crawl https://example.com -p "Extract article titles" --max-pages 5 --depth 2
+just-scrape crawl https://example.com -p "Extract article titles" --max-pages 5 --depth 2
 
 # Markdown only
-scrapegraphai crawl https://example.com --no-extraction --max-pages 10
+just-scrape crawl https://example.com --no-extraction --max-pages 10
 
 # With crawl rules
-scrapegraphai crawl https://example.com -p "Extract data" \
+just-scrape crawl https://example.com -p "Extract data" \
   --rules '{"include_paths":["/blog/*"],"same_domain":true}'
 ```
 
@@ -139,14 +147,14 @@ scrapegraphai crawl https://example.com -p "Extract data" \
 ### `sitemap` — Get all URLs from a website's sitemap  [docs](https://docs.scrapegraphai.com/services/sitemap)
 
 ```bash
-scrapegraphai sitemap https://example.com
+just-scrape sitemap https://example.com
 ```
 
 ### `scrape` — Get raw HTML content  [docs](https://docs.scrapegraphai.com/services/scrape)
 
 ```bash
-scrapegraphai scrape https://example.com
-scrapegraphai scrape https://example.com --stealth --branding --country-code US
+just-scrape scrape https://example.com
+just-scrape scrape https://example.com --stealth --branding --country-code US
 ```
 
 | Option | Description |
@@ -159,7 +167,7 @@ scrapegraphai scrape https://example.com --stealth --branding --country-code US
 ### `agentic-scraper` — Browser automation with AI  [docs](https://docs.scrapegraphai.com/services/agenticscraper)
 
 ```bash
-scrapegraphai agentic-scraper https://example.com/login \
+just-scrape agentic-scraper https://example.com/login \
   -s "Fill email with user@test.com,Fill password with pass123,Click Sign In" \
   --ai-extraction -p "Extract dashboard data"
 ```
@@ -175,7 +183,7 @@ scrapegraphai agentic-scraper https://example.com/login \
 ### `generate-schema` — Generate JSON schema from a prompt
 
 ```bash
-scrapegraphai generate-schema "Schema for an e-commerce product with name, price, and reviews"
+just-scrape generate-schema "Schema for an e-commerce product with name, price, and reviews"
 ```
 
 | Option | Description |
@@ -185,13 +193,13 @@ scrapegraphai generate-schema "Schema for an e-commerce product with name, price
 ### `credits` — Check credit balance
 
 ```bash
-scrapegraphai credits
+just-scrape credits
 ```
 
 ### `validate` — Validate your API key
 
 ```bash
-scrapegraphai validate
+just-scrape validate
 ```
 
 ## Testing
@@ -259,10 +267,10 @@ All commands output pretty-printed JSON to stdout (pipeable). Errors go to stder
 
 ```bash
 # Pipe output to jq
-scrapegraphai credits | jq '.remaining_credits'
+just-scrape credits | jq '.remaining_credits'
 
 # Save to file
-scrapegraphai smart-scraper https://example.com -p "Extract data" > result.json
+just-scrape smart-scraper https://example.com -p "Extract data" > result.json
 ```
 
 ## License
