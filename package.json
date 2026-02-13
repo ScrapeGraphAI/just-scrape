@@ -1,11 +1,11 @@
 {
 	"name": "just-scrape",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "ScrapeGraph AI CLI tool",
 	"type": "module",
 	"main": "dist/cli.mjs",
 	"bin": {
-		"scrapegraphai": "dist/cli.mjs"
+		"just-scrape": "dist/cli.mjs"
 	},
 	"scripts": {
 		"dev": "bun run src/cli.ts",

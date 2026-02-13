@@ -6,7 +6,7 @@ showBanner();
 
 const main = defineCommand({
 	meta: {
-		name: "scrapegraphai",
+		name: "just-scrape",
 		version: getVersion(),
 		description: "ScrapeGraph AI CLI tool",
 	},

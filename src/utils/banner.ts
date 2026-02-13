@@ -14,19 +14,20 @@ export function getVersion(): string {
 }
 
 const BANNER = [
-	"╔═╗╔═╗╦═╗╔═╗╔═╗╔═╗╔═╗╦═╗╔═╗╔═╗╦ ╦╔═╗╦",
-	"╚═╗║  ╠╦╝╠═╣╠═╝║╣ ║ ╦╠╦╝╠═╣╠═╝╠═╣╠═╣║",
-	"╚═╝╚═╝╩╚═╩ ╩╩  ╚═╝╚═╝╩╚═╩ ╩╩  ╩ ╩╩ ╩╩",
-].join("\n");
+	"╔═╗╦ ╦╔═╗╔╦╗   ╔═╗╔═╗╦═╗╔═╗╔═╗╔═╗",
+	"  ║║ ║╚═╗ ║ ═══╚═╗║  ╠╦╝╠═╣╠═╝║╣ ",
+	"╚═╝╚═╝╚═╝ ╩    ╚═╝╚═╝╩╚═╩ ╩╩  ╚═╝",
+];
+
+const TAGLINE = "  made with ♥ from scrapegraphai team";
 
 const BANNER_COLOR = "#bd93f9";
 
 export function showBanner() {
-	const colored = BANNER.split("\n")
-		.map((line) => chalk.hex(BANNER_COLOR)(line))
-		.join("\n");
+	const text = BANNER.map((line) => chalk.hex(BANNER_COLOR)(line)).join("\n");
 
-	console.log(colored);
+	console.log(text);
+	console.log(chalk.hex(BANNER_COLOR)(TAGLINE));
 	console.log(chalk.hex(BANNER_COLOR)(`v${getVersion()}`));
 	console.log();
 }
