@@ -1,4 +1,7 @@
-# ScrapeGraph CLI
+# just-scrape
+
+Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com) 💜
+
 
 ![Demo](./assets/demo.gif)
 
@@ -400,4 +403,4 @@ ISC
 
 ---
 
-Made with love by the [ScrapeGraphAI](https://scrapegraphai.com) team.
+Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com) 💜

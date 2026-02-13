@@ -9,13 +9,15 @@ AI-powered web scraping CLI by [ScrapeGraph AI](https://scrapegraphai.com). Get 
 
 ## Setup
 
+Always install or run the `@latest` version to ensure you have the most recent features and fixes.
+
 ```bash
-npm install -g just-scrape           # npm
-pnpm add -g just-scrape              # pnpm
-yarn global add just-scrape          # yarn
-bun add -g just-scrape               # bun
-npx just-scrape --help               # run without installing
-bunx just-scrape --help              # run without installing (bun)
+npm install -g just-scrape@latest           # npm
+pnpm add -g just-scrape@latest              # pnpm
+yarn global add just-scrape@latest          # yarn
+bun add -g just-scrape@latest               # bun
+npx just-scrape@latest --help               # run without installing
+bunx just-scrape@latest --help              # run without installing (bun)
 ```
 
 ```bash

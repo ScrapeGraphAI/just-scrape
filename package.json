@@ -23,7 +23,7 @@
 		"scrapegraph"
 	],
 	"author": "ScrapeGraph Team",
-	"license": "ISC",
+	"license": "MIT",
 	"engines": {
 		"node": ">=22"
 	},
