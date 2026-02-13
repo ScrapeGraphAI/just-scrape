@@ -4,13 +4,64 @@
 
 Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling.
 
-### Install (npm)
+## Installation
+
+### From npm (recommended)
+
+Install globally to use `just-scrape` from anywhere:
 
 ```bash
 npm install -g just-scrape
 ```
 
+Or use it directly without installing via `npx`:
+
+```bash
+npx just-scrape --help
+```
+
+You can also install with other package managers:
+
+```bash
+# pnpm
+pnpm add -g just-scrape
+
+# yarn
+yarn global add just-scrape
+
+# bun
+bun add -g just-scrape
+```
+
 Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
+
+### From source (local development)
+
+Requires [Bun](https://bun.sh) and Node.js 22+.
+
+```bash
+# Clone the repository
+git clone https://github.com/ScrapeGraphAI/just-scrape.git
+cd just-scrape
+
+# Install dependencies
+bun install
+
+# Run directly from source (no build needed)
+bun run dev --help
+
+# Or build and link globally
+bun run build
+npm link
+just-scrape --help
+```
+
+### Verify installation
+
+```bash
+just-scrape --help
+just-scrape validate   # check your API key
+```
 
 ## Tech Stack
 

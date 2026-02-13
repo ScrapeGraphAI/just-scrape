@@ -1,6 +1,6 @@
 {
 	"name": "just-scrape",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "ScrapeGraph AI CLI tool",
 	"type": "module",
 	"main": "dist/cli.mjs",
