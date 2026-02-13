@@ -323,3 +323,7 @@ just-scrape smart-scraper https://example.com -p "Extract data" > result.json
 ## License
 
 ISC
+
+---
+
+Made with love by the [ScrapeGraphAI](https://scrapegraphai.com) team.
