@@ -5,10 +5,20 @@ description: "CLI tool for AI-powered web scraping, data extraction, search, and
 
 # Web Scraping with just-scrape
 
+AI-powered web scraping CLI by [ScrapeGraph AI](https://scrapegraphai.com). Get an API key at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com).
+
 ## Setup
 
 ```bash
-npm install -g just-scrape
+npm install -g just-scrape           # npm
+pnpm add -g just-scrape              # pnpm
+yarn global add just-scrape          # yarn
+bun add -g just-scrape               # bun
+npx just-scrape --help               # run without installing
+bunx just-scrape --help              # run without installing (bun)
+```
+
+```bash
 export SGAI_API_KEY="sgai-..."
 ```
 
