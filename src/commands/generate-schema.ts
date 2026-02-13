@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -19,24 +18,20 @@ export default defineCommand({
 			type: "string",
 			description: "Existing schema to modify (as JSON string)",
 		},
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
-		const key = await resolveApiKey();
+		const out = log.create(!!args.json);
+		const key = await resolveApiKey(!!args.json);
 
-		const params: scrapegraphai.GenerateSchemaParams = {
-			user_prompt: args.prompt,
-		};
-
+		const params: scrapegraphai.GenerateSchemaParams = { user_prompt: args.prompt };
 		if (args["existing-schema"]) params.existing_schema = JSON.parse(args["existing-schema"]);
 
-		const s = p.spinner();
-		s.start("Generating schema");
-		const result = await scrapegraphai.generateSchema(key, params, (status) => {
-			s.message(`Status: ${status}`);
-		});
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+		out.start("Generating schema");
+		const result = await scrapegraphai.generateSchema(key, params, out.poll);
+		out.stop(result.elapsedMs);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });

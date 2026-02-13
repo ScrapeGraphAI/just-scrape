@@ -4,18 +4,20 @@ import { CONFIG_DIR, CONFIG_PATH, env } from "./env.js";
 
 let cachedKey: string | null = null;
 
-export async function resolveApiKey(): Promise<string> {
+export async function resolveApiKey(quiet = false): Promise<string> {
 	if (cachedKey) return cachedKey;
 
 	if (env.apiKey) {
-		let source = "config (~/.scrapegraphai/config.json)";
-		if (process.env.SGAI_API_KEY) {
-			source = "SGAI_API_KEY env var";
-			try {
-				if (/^SGAI_API_KEY\s*=/m.test(readFileSync(".env", "utf-8"))) source = ".env file";
-			} catch {}
+		if (!quiet) {
+			let source = "config (~/.scrapegraphai/config.json)";
+			if (process.env.SGAI_API_KEY) {
+				source = "SGAI_API_KEY env var";
+				try {
+					if (/^SGAI_API_KEY\s*=/m.test(readFileSync(".env", "utf-8"))) source = ".env file";
+				} catch {}
+			}
+			p.log.info(`Using API key from ${source}`);
 		}
-		p.log.info(`Using API key from ${source}`);
 		cachedKey = env.apiKey;
 		return env.apiKey;
 	}

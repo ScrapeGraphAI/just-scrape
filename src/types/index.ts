@@ -3,6 +3,7 @@ import type {
 	AgenticScraperSchema,
 	CrawlSchema,
 	GenerateSchemaSchema,
+	HistorySchema,
 	MarkdownifySchema,
 	ScrapeSchema,
 	SearchScraperSchema,
@@ -18,6 +19,7 @@ export type GenerateSchemaParams = z.infer<typeof GenerateSchemaSchema>;
 export type SitemapParams = z.infer<typeof SitemapSchema>;
 export type ScrapeParams = z.infer<typeof ScrapeSchema>;
 export type AgenticScraperParams = z.infer<typeof AgenticScraperSchema>;
+export type HistoryParams = z.input<typeof HistorySchema>;
 
 export type ApiResult<T> = {
 	status: "success" | "error";

@@ -4,66 +4,365 @@
 
 Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling.
 
+## Project Structure
+
+```
+just-scrape/
+├── src/
+│   ├── cli.ts                       # Entry point, citty main command + subcommands
+│   ├── lib/
+│   │   ├── env.ts                   # Zod-parsed env config (API key, debug, timeout)
+│   │   ├── folders.ts               # API key resolution + interactive prompt
+│   │   ├── scrapegraphai.ts         # SDK layer — all API functions
+│   │   ├── schemas.ts               # Zod validation schemas
+│   │   └── log.ts                   # Logger factory + syntax-highlighted JSON output
+│   ├── types/
+│   │   └── index.ts                 # Zod-derived types + ApiResult
+│   ├── commands/
+│   │   ├── smart-scraper.ts
+│   │   ├── search-scraper.ts
+│   │   ├── markdownify.ts
+│   │   ├── crawl.ts
+│   │   ├── sitemap.ts
+│   │   ├── scrape.ts
+│   │   ├── agentic-scraper.ts
+│   │   ├── generate-schema.ts
+│   │   ├── history.ts
+│   │   ├── credits.ts
+│   │   └── validate.ts
+│   └── utils/
+│       └── banner.ts                # ASCII banner + version from package.json
+├── tests/
+│   └── scrapegraphai.test.ts        # SDK layer tests (mocked fetch)
+├── dist/                            # Build output (git-ignored)
+│   └── cli.mjs                      # Bundled ESM with shebang
+├── package.json
+├── tsconfig.json
+├── tsup.config.ts
+├── biome.json
+└── .gitignore
+```
+
 ## Installation
 
-### From npm (recommended)
-
-Install globally to use `just-scrape` from anywhere:
-
 ```bash
-npm install -g just-scrape
-```
-
-Or use it directly without installing via `npx`:
-
-```bash
-npx just-scrape --help
-```
-
-You can also install with other package managers:
-
-```bash
-# pnpm
-pnpm add -g just-scrape
-
-# yarn
-yarn global add just-scrape
-
-# bun
-bun add -g just-scrape
+npm install -g just-scrape           # npm (recommended)
+pnpm add -g just-scrape              # pnpm
+yarn global add just-scrape           # yarn
+bun add -g just-scrape               # bun
+npx just-scrape --help               # or run without installing
 ```
 
 Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
 
-### From source (local development)
+## Configuration
+
+The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com).
+
+Four ways to provide it (checked in order):
+
+1. **Environment variable**: `export SGAI_API_KEY="sgai-..."`
+2. **`.env` file**: `SGAI_API_KEY=sgai-...` in project root
+3. **Config file**: `~/.scrapegraphai/config.json`
+4. **Interactive prompt**: the CLI asks and saves to config
+
+```bash
+export JUST_SCRAPE_TIMEOUT_S=300     # Request/polling timeout in seconds (default: 120)
+JUST_SCRAPE_DEBUG=1 just-scrape ...  # Debug logging to stderr
+```
+
+## JSON Mode (`--json`)
+
+All commands support `--json` for machine-readable output. When set, banner, spinners, and interactive prompts are suppressed — only raw JSON on stdout.
+
+```bash
+just-scrape credits --json | jq '.remaining_credits'
+just-scrape smart-scraper https://example.com -p "Extract data" --json > result.json
+just-scrape history smartscraper --json | jq '.requests[].status'
+```
+
+---
+
+## Smart Scraper
+
+Extract structured data from any URL using AI. [docs](https://docs.scrapegraphai.com/services/smartscraper)
+
+### Usage
+
+```bash
+just-scrape smart-scraper <url> -p <prompt>                # Extract data with AI
+just-scrape smart-scraper <url> -p <prompt> --schema <json> # Enforce output schema
+just-scrape smart-scraper <url> -p <prompt> --scrolls <n>  # Infinite scroll (0-100)
+just-scrape smart-scraper <url> -p <prompt> --pages <n>    # Multi-page (1-100)
+just-scrape smart-scraper <url> -p <prompt> --render-js    # JS rendering (+1 credit)
+just-scrape smart-scraper <url> -p <prompt> --stealth      # Anti-bot bypass (+4 credits)
+just-scrape smart-scraper <url> -p <prompt> --cookies <json> --headers <json>
+just-scrape smart-scraper <url> -p <prompt> --plain-text   # Plain text instead of JSON
+```
+
+### Examples
+
+```bash
+# Extract product listings from an e-commerce page
+just-scrape smart-scraper https://store.example.com/shoes -p "Extract all product names, prices, and ratings"
+
+# Extract with a strict schema, scrolling to load more content
+just-scrape smart-scraper https://news.example.com -p "Get all article headlines and dates" \
+  --schema '{"type":"object","properties":{"articles":{"type":"array","items":{"type":"object","properties":{"title":{"type":"string"},"date":{"type":"string"}}}}}}' \
+  --scrolls 5
+
+# Scrape a JS-heavy SPA behind anti-bot protection
+just-scrape smart-scraper https://app.example.com/dashboard -p "Extract user stats" \
+  --render-js --stealth
+```
+
+## Search Scraper
+
+Search the web and extract structured data from results. [docs](https://docs.scrapegraphai.com/services/searchscraper)
+
+### Usage
+
+```bash
+just-scrape search-scraper <prompt>                        # AI-powered web search
+just-scrape search-scraper <prompt> --num-results <n>      # Sources to scrape (3-20, default 3)
+just-scrape search-scraper <prompt> --no-extraction        # Markdown only (2 credits vs 10)
+just-scrape search-scraper <prompt> --schema <json>        # Enforce output schema
+just-scrape search-scraper <prompt> --stealth --headers <json>
+```
+
+### Examples
+
+```bash
+# Research a topic across multiple sources
+just-scrape search-scraper "What are the best Python web frameworks in 2025?" --num-results 10
+
+# Get raw markdown from search results (cheaper)
+just-scrape search-scraper "React vs Vue comparison" --no-extraction --num-results 5
+
+# Structured output with schema
+just-scrape search-scraper "Top 5 cloud providers pricing" \
+  --schema '{"type":"object","properties":{"providers":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"free_tier":{"type":"string"}}}}}}'
+```
+
+## Markdownify
+
+Convert any webpage to clean markdown. [docs](https://docs.scrapegraphai.com/services/markdownify)
+
+### Usage
+
+```bash
+just-scrape markdownify <url>                              # Convert to markdown
+just-scrape markdownify <url> --render-js                  # JS rendering (+1 credit)
+just-scrape markdownify <url> --stealth                    # Anti-bot bypass (+4 credits)
+just-scrape markdownify <url> --headers <json>             # Custom headers
+```
+
+### Examples
+
+```bash
+# Convert a blog post to markdown
+just-scrape markdownify https://blog.example.com/my-article
+
+# Convert a JS-rendered page behind Cloudflare
+just-scrape markdownify https://protected.example.com --render-js --stealth
+
+# Pipe markdown to a file
+just-scrape markdownify https://docs.example.com/api --json | jq -r '.result' > api-docs.md
+```
+
+## Crawl
+
+Crawl multiple pages and extract data from each. [docs](https://docs.scrapegraphai.com/services/smartcrawler)
+
+### Usage
+
+```bash
+just-scrape crawl <url> -p <prompt>                        # Crawl + extract
+just-scrape crawl <url> -p <prompt> --max-pages <n>        # Max pages (default 10)
+just-scrape crawl <url> -p <prompt> --depth <n>            # Crawl depth (default 1)
+just-scrape crawl <url> --no-extraction --max-pages <n>    # Markdown only (2 credits/page)
+just-scrape crawl <url> -p <prompt> --schema <json>        # Enforce output schema
+just-scrape crawl <url> -p <prompt> --rules <json>         # Crawl rules (include_paths, same_domain)
+just-scrape crawl <url> -p <prompt> --no-sitemap           # Skip sitemap discovery
+just-scrape crawl <url> -p <prompt> --render-js --stealth  # JS + anti-bot
+```
+
+### Examples
+
+```bash
+# Crawl a docs site and extract all code examples
+just-scrape crawl https://docs.example.com -p "Extract all code snippets with their language" \
+  --max-pages 20 --depth 3
+
+# Crawl only blog pages, skip everything else
+just-scrape crawl https://example.com -p "Extract article titles and summaries" \
+  --rules '{"include_paths":["/blog/*"],"same_domain":true}' --max-pages 50
+
+# Get raw markdown from all pages (no AI extraction, cheaper)
+just-scrape crawl https://example.com --no-extraction --max-pages 10
+```
+
+## Sitemap
+
+Get all URLs from a website's sitemap. [docs](https://docs.scrapegraphai.com/services/sitemap)
+
+### Usage
+
+```bash
+just-scrape sitemap <url>
+```
+
+### Examples
+
+```bash
+# List all pages on a site
+just-scrape sitemap https://example.com
+
+# Pipe URLs to another tool
+just-scrape sitemap https://example.com --json | jq -r '.urls[]'
+```
+
+## Scrape
+
+Get raw HTML content from a URL. [docs](https://docs.scrapegraphai.com/services/scrape)
+
+### Usage
+
+```bash
+just-scrape scrape <url>                                   # Raw HTML
+just-scrape scrape <url> --render-js                       # JS rendering (+1 credit)
+just-scrape scrape <url> --stealth                         # Anti-bot bypass (+4 credits)
+just-scrape scrape <url> --branding                        # Extract branding (+2 credits)
+just-scrape scrape <url> --country-code <iso>              # Geo-targeting
+```
+
+### Examples
+
+```bash
+# Get raw HTML of a page
+just-scrape scrape https://example.com
+
+# Scrape a geo-restricted page with anti-bot bypass
+just-scrape scrape https://store.example.com --stealth --country-code DE
+
+# Extract branding info (logos, colors, fonts)
+just-scrape scrape https://example.com --branding
+```
+
+## Agentic Scraper
+
+Browser automation with AI — login, click, navigate, fill forms. [docs](https://docs.scrapegraphai.com/services/agenticscraper)
+
+### Usage
+
+```bash
+just-scrape agentic-scraper <url> -s <steps>               # Run browser steps
+just-scrape agentic-scraper <url> -s <steps> --ai-extraction -p <prompt>
+just-scrape agentic-scraper <url> -s <steps> --schema <json>
+just-scrape agentic-scraper <url> -s <steps> --use-session # Persist browser session
+```
+
+### Examples
+
+```bash
+# Log in and extract dashboard data
+just-scrape agentic-scraper https://app.example.com/login \
+  -s "Fill email with user@test.com,Fill password with secret,Click Sign In" \
+  --ai-extraction -p "Extract all dashboard metrics"
+
+# Navigate through a multi-step form
+just-scrape agentic-scraper https://example.com/wizard \
+  -s "Click Next,Select Premium plan,Fill name with John,Click Submit"
+
+# Persistent session across multiple runs
+just-scrape agentic-scraper https://app.example.com \
+  -s "Click Settings" --use-session
+```
+
+## Generate Schema
+
+Generate a JSON schema from a natural language description.
+
+### Usage
+
+```bash
+just-scrape generate-schema <prompt>                       # AI generates a schema
+just-scrape generate-schema <prompt> --existing-schema <json>
+```
+
+### Examples
+
+```bash
+# Generate a schema for product data
+just-scrape generate-schema "E-commerce product with name, price, ratings, and reviews array"
+
+# Refine an existing schema
+just-scrape generate-schema "Add an availability field" \
+  --existing-schema '{"type":"object","properties":{"name":{"type":"string"},"price":{"type":"number"}}}'
+```
+
+## History
+
+Browse request history for any service. Interactive by default — arrow keys to navigate, select to view details, "Load more" for infinite scroll.
+
+### Usage
+
+```bash
+just-scrape history <service>                              # Interactive browser
+just-scrape history <service> <request-id>                 # Fetch specific request
+just-scrape history <service> --page <n>                   # Start from page (default 1)
+just-scrape history <service> --page-size <n>              # Results per page (default 10, max 100)
+just-scrape history <service> --json                       # Raw JSON (pipeable)
+```
+
+Services: `markdownify`, `smartscraper`, `searchscraper`, `scrape`, `crawl`, `agentic-scraper`, `sitemap`
+
+### Examples
+
+```bash
+# Browse your smart-scraper history interactively
+just-scrape history smartscraper
+
+# Jump to a specific request by ID
+just-scrape history smartscraper abc123-def456-7890
+
+# Export crawl history as JSON
+just-scrape history crawl --json --page-size 100 | jq '.requests[] | {id: .request_id, status}'
+```
+
+## Credits
+
+Check your credit balance.
+
+```bash
+just-scrape credits
+just-scrape credits --json | jq '.remaining_credits'
+```
+
+## Validate
+
+Validate your API key (health check).
+
+```bash
+just-scrape validate
+```
+
+---
+
+## Contributing
+
+### From Source
 
 Requires [Bun](https://bun.sh) and Node.js 22+.
 
 ```bash
-# Clone the repository
 git clone https://github.com/ScrapeGraphAI/just-scrape.git
 cd just-scrape
-
-# Install dependencies
 bun install
-
-# Run directly from source (no build needed)
 bun run dev --help
-
-# Or build and link globally
-bun run build
-npm link
-just-scrape --help
 ```
 
-### Verify installation
-
-```bash
-just-scrape --help
-just-scrape validate   # check your API key
-```
-
-## Tech Stack
+### Tech Stack
 
 | Concern | Tool |
 |---|---|
@@ -79,246 +378,22 @@ just-scrape validate   # check your API key
 | Testing | **Bun test** (built-in) |
 | Target | **Node.js 22+**, ESM-only |
 
-## Setup
+### Scripts
 
 ```bash
-bun install
+bun run dev                          # Run CLI from TS source
+bun run build                        # Bundle ESM to dist/cli.mjs
+bun run lint                         # Lint + format check
+bun run format                       # Auto-format
+bun test                             # Run tests
+bun run check                        # Type-check + lint
 ```
 
-## Configuration
+### Testing
 
-The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com).
+Tests mock all API calls via `spyOn(globalThis, "fetch")` — no network, no API key needed.
 
-Four ways to provide it (checked in order):
-
-1. **Environment variable**: `export SGAI_API_KEY="sgai-..."`
-2. **`.env` file**: create a `.env` file in the project root with `SGAI_API_KEY=sgai-...`
-3. **Config file**: stored in `~/.scrapegraphai/config.json`
-4. **Interactive prompt**: if none of the above are set, the CLI prompts you and saves it to the config file
-
-### Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `JUST_SCRAPE_TIMEOUT_S` | `120` | Request/polling timeout in seconds |
-| `JUST_SCRAPE_DEBUG` | `0` | Set to `1` to enable debug logging (outputs to stderr) |
-
-```bash
-export JUST_SCRAPE_TIMEOUT_S=300
-JUST_SCRAPE_DEBUG=1 just-scrape smart-scraper https://example.com -p "Extract data"
-```
-
-## Commands
-
-### `smart-scraper` — Extract structured data from a URL  [docs](https://docs.scrapegraphai.com/services/smartscraper)
-
-```bash
-just-scrape smart-scraper <url> -p "Extract all product names and prices"
-
-# With JSON schema
-just-scrape smart-scraper https://example.com/products -p "Extract products" \
-  --schema '{"type":"object","properties":{"products":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"price":{"type":"number"}}}}}}'
-
-# With options
-just-scrape smart-scraper https://example.com -p "Extract data" \
-  --stealth --render-js --scrolls 10 --pages 5
-```
-
-| Option | Description |
-|---|---|
-| `-p, --prompt` | Extraction prompt (required) |
-| `--schema` | Output JSON schema (JSON string) |
-| `--scrolls` | Infinite scroll count (0-100) |
-| `--pages` | Total pages to scrape (1-100) |
-| `--render-js` | Enable JS rendering (+1 credit) |
-| `--stealth` | Bypass bot detection (+4 credits) |
-| `--cookies` | Cookies as JSON object string |
-| `--headers` | Custom headers as JSON object string |
-| `--plain-text` | Return plain text instead of JSON |
-
-### `search-scraper` — Search the web and extract data  [docs](https://docs.scrapegraphai.com/services/searchscraper)
-
-```bash
-just-scrape search-scraper "What are the top Python web frameworks?"
-
-# Markdown only (cheaper)
-just-scrape search-scraper "Python frameworks" --no-extraction --num-results 5
-```
-
-| Option | Description |
-|---|---|
-| `--num-results` | Number of websites (3-20, default 3) |
-| `--no-extraction` | Markdown only (2 credits/site vs 10) |
-| `--schema` | Output JSON schema (JSON string) |
-| `--stealth` | Bypass bot detection (+4 credits) |
-| `--headers` | Custom headers as JSON object string |
-
-### `markdownify` — Convert a webpage to markdown  [docs](https://docs.scrapegraphai.com/services/markdownify)
-
-```bash
-just-scrape markdownify https://example.com/article
-just-scrape markdownify https://example.com --render-js --stealth
-```
-
-| Option | Description |
-|---|---|
-| `--render-js` | Enable JS rendering (+1 credit) |
-| `--stealth` | Bypass bot detection (+4 credits) |
-| `--headers` | Custom headers as JSON object string |
-
-### `crawl` — Crawl and extract from multiple pages  [docs](https://docs.scrapegraphai.com/services/smartcrawler)
-
-```bash
-just-scrape crawl https://example.com -p "Extract article titles" --max-pages 5 --depth 2
-
-# Markdown only
-just-scrape crawl https://example.com --no-extraction --max-pages 10
-
-# With crawl rules
-just-scrape crawl https://example.com -p "Extract data" \
-  --rules '{"include_paths":["/blog/*"],"same_domain":true}'
-```
-
-| Option | Description |
-|---|---|
-| `-p, --prompt` | Extraction prompt (required when extraction is on) |
-| `--no-extraction` | Markdown only (2 credits/page vs 10) |
-| `--max-pages` | Max pages to crawl (default 10) |
-| `--depth` | Crawl depth (default 1) |
-| `--schema` | Output JSON schema (JSON string) |
-| `--rules` | Crawl rules as JSON object string |
-| `--no-sitemap` | Disable sitemap-based discovery |
-| `--render-js` | Enable JS rendering (+1 credit/page) |
-| `--stealth` | Bypass bot detection (+4 credits) |
-
-### `sitemap` — Get all URLs from a website's sitemap  [docs](https://docs.scrapegraphai.com/services/sitemap)
-
-```bash
-just-scrape sitemap https://example.com
-```
-
-### `scrape` — Get raw HTML content  [docs](https://docs.scrapegraphai.com/services/scrape)
-
-```bash
-just-scrape scrape https://example.com
-just-scrape scrape https://example.com --stealth --branding --country-code US
-```
-
-| Option | Description |
-|---|---|
-| `--render-js` | Enable JS rendering (+1 credit) |
-| `--stealth` | Bypass bot detection (+4 credits) |
-| `--branding` | Extract branding info (+2 credits) |
-| `--country-code` | ISO country code for geo-targeting |
-
-### `agentic-scraper` — Browser automation with AI  [docs](https://docs.scrapegraphai.com/services/agenticscraper)
-
-```bash
-just-scrape agentic-scraper https://example.com/login \
-  -s "Fill email with user@test.com,Fill password with pass123,Click Sign In" \
-  --ai-extraction -p "Extract dashboard data"
-```
-
-| Option | Description |
-|---|---|
-| `-s, --steps` | Comma-separated browser steps |
-| `-p, --prompt` | Extraction prompt (with `--ai-extraction`) |
-| `--schema` | Output JSON schema (JSON string) |
-| `--ai-extraction` | Enable AI extraction after steps |
-| `--use-session` | Persist browser session |
-
-### `generate-schema` — Generate JSON schema from a prompt
-
-```bash
-just-scrape generate-schema "Schema for an e-commerce product with name, price, and reviews"
-```
-
-| Option | Description |
-|---|---|
-| `--existing-schema` | Existing schema to modify (JSON string) |
-
-### `credits` — Check credit balance
-
-```bash
-just-scrape credits
-```
-
-### `validate` — Validate your API key
-
-```bash
-just-scrape validate
-```
-
-## Testing
-
-Tests use Bun's built-in test runner with `spyOn(globalThis, "fetch")` to mock all API calls — no network requests, no API key needed.
-
-```bash
-bun test
-```
-
-Covers all SDK functions: success paths, polling, HTTP error mapping (401/402/422/429/500), Zod validation, timeouts, and network failures.
-
-## Project Structure
-
-```
-just-scrape/
-├── src/
-│   ├── cli.ts                       # Entry point, citty main command + subcommands
-│   ├── lib/
-│   │   ├── env.ts                  # Zod-parsed env config (API key, debug, timeout)
-│   │   ├── folders.ts               # API key resolution + interactive prompt
-│   │   ├── scrapegraphai.ts         # SDK layer — all API functions
-│   │   ├── schemas.ts              # Zod validation schemas
-│   │   └── log.ts                  # Syntax-highlighted JSON output
-│   ├── types/
-│   │   └── index.ts                # Zod-derived types + ApiResult
-│   ├── commands/
-│   │   ├── smart-scraper.ts
-│   │   ├── search-scraper.ts
-│   │   ├── markdownify.ts
-│   │   ├── crawl.ts
-│   │   ├── sitemap.ts
-│   │   ├── scrape.ts
-│   │   ├── agentic-scraper.ts
-│   │   ├── generate-schema.ts
-│   │   ├── credits.ts
-│   │   └── validate.ts
-│   └── utils/
-│       └── banner.ts               # ASCII banner + version from package.json
-├── tests/
-│   └── scrapegraphai.test.ts      # SDK layer tests (mocked fetch)
-├── dist/                            # Build output (git-ignored)
-│   └── cli.mjs                     # Bundled ESM with shebang
-├── package.json
-├── tsconfig.json
-├── tsup.config.ts
-├── biome.json
-└── .gitignore
-```
-
-## Scripts
-
-| Script | Command | Description |
-|---|---|---|
-| `dev` | `bun run src/cli.ts` | Run CLI from TS source |
-| `build` | `tsup` | Bundle ESM to `dist/cli.mjs` |
-| `lint` | `biome check .` | Lint + format check |
-| `format` | `biome format . --write` | Auto-format |
-| `test` | `bun test` | Run tests |
-| `check` | `tsc --noEmit && biome check .` | Type-check + lint |
-
-## Output
-
-All commands output pretty-printed JSON to stdout (pipeable). Errors go to stderr via `@clack/prompts`.
-
-```bash
-# Pipe output to jq
-just-scrape credits | jq '.remaining_credits'
-
-# Save to file
-just-scrape smart-scraper https://example.com -p "Extract data" > result.json
-```
+Covers: success paths, polling, HTTP error mapping (401/402/422/429/500), Zod validation, timeouts, and network failures.
 
 ## License
 

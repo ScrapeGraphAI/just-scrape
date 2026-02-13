@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -24,42 +23,21 @@ export default defineCommand({
 			type: "boolean",
 			description: "Return markdown only (2 credits/page instead of 10)",
 		},
-		"max-pages": {
-			type: "string",
-			description: "Maximum pages to crawl (default 10)",
-		},
-		depth: {
-			type: "string",
-			description: "Crawl depth (default 1)",
-		},
-		schema: {
-			type: "string",
-			description: "Output JSON schema (as JSON string)",
-		},
-		rules: {
-			type: "string",
-			description: "Crawl rules as JSON object string",
-		},
-		"no-sitemap": {
-			type: "boolean",
-			description: "Disable sitemap-based URL discovery",
-		},
-		"render-js": {
-			type: "boolean",
-			description: "Enable heavy JS rendering (+1 credit/page)",
-		},
-		stealth: {
-			type: "boolean",
-			description: "Bypass bot detection (+4 credits)",
-		},
+		"max-pages": { type: "string", description: "Maximum pages to crawl (default 10)" },
+		depth: { type: "string", description: "Crawl depth (default 1)" },
+		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
+		rules: { type: "string", description: "Crawl rules as JSON object string" },
+		"no-sitemap": { type: "boolean", description: "Disable sitemap-based URL discovery" },
+		"render-js": { type: "boolean", description: "Enable heavy JS rendering (+1 credit/page)" },
+		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
-		log.docs("https://docs.scrapegraphai.com/services/smartcrawler");
-		const key = await resolveApiKey();
+		const out = log.create(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/services/smartcrawler");
+		const key = await resolveApiKey(!!args.json);
 
-		const params: scrapegraphai.CrawlParams = {
-			url: args.url,
-		};
+		const params: scrapegraphai.CrawlParams = { url: args.url };
 
 		if (args.prompt) params.prompt = args.prompt;
 		if (args["no-extraction"]) params.extraction_mode = false;
@@ -71,14 +49,11 @@ export default defineCommand({
 		if (args["render-js"]) params.render_heavy_js = true;
 		if (args.stealth) params.stealth = true;
 
-		const s = p.spinner();
-		s.start("Crawling");
-		const result = await scrapegraphai.crawl(key, params, (status) => {
-			s.message(`Status: ${status}`);
-		});
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+		out.start("Crawling");
+		const result = await scrapegraphai.crawl(key, params, out.poll);
+		out.stop(result.elapsedMs);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });

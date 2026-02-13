@@ -1,4 +1,3 @@
-import * as p from "@clack/prompts";
 import { defineCommand } from "citty";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -25,26 +24,17 @@ export default defineCommand({
 			alias: "p",
 			description: "Extraction prompt (used with --ai-extraction)",
 		},
-		schema: {
-			type: "string",
-			description: "Output JSON schema (as JSON string)",
-		},
-		"ai-extraction": {
-			type: "boolean",
-			description: "Enable AI extraction after steps",
-		},
-		"use-session": {
-			type: "boolean",
-			description: "Persist browser session across requests",
-		},
+		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
+		"ai-extraction": { type: "boolean", description: "Enable AI extraction after steps" },
+		"use-session": { type: "boolean", description: "Persist browser session across requests" },
+		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
-		log.docs("https://docs.scrapegraphai.com/services/agenticscraper");
-		const key = await resolveApiKey();
+		const out = log.create(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/services/agenticscraper");
+		const key = await resolveApiKey(!!args.json);
 
-		const params: scrapegraphai.AgenticScraperParams = {
-			url: args.url,
-		};
+		const params: scrapegraphai.AgenticScraperParams = { url: args.url };
 
 		if (args.steps) params.steps = args.steps.split(",").map((s) => s.trim());
 		if (args.prompt) params.user_prompt = args.prompt;
@@ -52,14 +42,11 @@ export default defineCommand({
 		if (args["ai-extraction"]) params.ai_extraction = true;
 		if (args["use-session"]) params.use_session = true;
 
-		const s = p.spinner();
-		s.start("Running browser automation");
-		const result = await scrapegraphai.agenticScraper(key, params, (status) => {
-			s.message(`Status: ${status}`);
-		});
-		s.stop(`Done in ${log.elapsed(result.elapsedMs)}`);
+		out.start("Running browser automation");
+		const result = await scrapegraphai.agenticScraper(key, params, out.poll);
+		out.stop(result.elapsedMs);
 
-		if (result.data) log.result(result.data);
-		else log.error(result.error);
+		if (result.data) out.result(result.data);
+		else out.error(result.error);
 	},
 });
