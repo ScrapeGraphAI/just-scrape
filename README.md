@@ -41,8 +41,8 @@ Requires [Bun](https://bun.sh) and Node.js 22+.
 
 ```bash
 # Clone the repository
-git clone https://github.com/ScrapeGraphAI/just-scrape.git
-cd just-scrape
+git clone https://github.com/ScrapeGraphAI/just-scrape-cli.git
+cd just-scrape-cli
 
 # Install dependencies
 bun install
@@ -262,7 +262,7 @@ Covers all SDK functions: success paths, polling, HTTP error mapping (401/402/42
 ## Project Structure
 
 ```
-scrapegraph-cli/
+just-scrape-cli/
 ├── src/
 │   ├── cli.ts                       # Entry point, citty main command + subcommands
 │   ├── lib/
