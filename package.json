@@ -1,5 +1,5 @@
 {
-	"name": "scrapegraph-cli",
+	"name": "just-scrape",
 	"version": "0.1.0",
 	"description": "ScrapeGraph AI CLI tool",
 	"type": "module",
