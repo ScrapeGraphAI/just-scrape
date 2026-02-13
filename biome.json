@@ -27,6 +27,6 @@
 		}
 	],
 	"files": {
-		"ignore": ["node_modules", "dist", "bun.lock"]
+		"ignore": ["node_modules", "dist", "bun.lock", ".claude"]
 	}
 }
