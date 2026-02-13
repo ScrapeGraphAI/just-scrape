@@ -29,7 +29,9 @@ function resolve(): Env {
 	return EnvSchema.parse({
 		apiKey: process.env.SGAI_API_KEY || (config["api-key"] as string) || undefined,
 		debug: process.env.JUST_SCRAPE_DEBUG === "1",
-		timeoutS: process.env.JUST_SCRAPE_TIMEOUT_S ? Number(process.env.JUST_SCRAPE_TIMEOUT_S) : undefined,
+		timeoutS: process.env.JUST_SCRAPE_TIMEOUT_S
+			? Number(process.env.JUST_SCRAPE_TIMEOUT_S)
+			: undefined,
 	});
 }
 
