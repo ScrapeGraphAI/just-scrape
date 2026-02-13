@@ -94,7 +94,6 @@ just-scrape smart-scraper <url> -p <prompt>                # Extract data with A
 just-scrape smart-scraper <url> -p <prompt> --schema <json> # Enforce output schema
 just-scrape smart-scraper <url> -p <prompt> --scrolls <n>  # Infinite scroll (0-100)
 just-scrape smart-scraper <url> -p <prompt> --pages <n>    # Multi-page (1-100)
-just-scrape smart-scraper <url> -p <prompt> --render-js    # JS rendering (+1 credit)
 just-scrape smart-scraper <url> -p <prompt> --stealth      # Anti-bot bypass (+4 credits)
 just-scrape smart-scraper <url> -p <prompt> --cookies <json> --headers <json>
 just-scrape smart-scraper <url> -p <prompt> --plain-text   # Plain text instead of JSON
