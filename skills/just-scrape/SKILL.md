@@ -47,7 +47,6 @@ API key resolution order: `SGAI_API_KEY` env var → `.env` file → `~/.scrapeg
 All commands support `--json` for machine-readable output (suppresses banner, spinners, prompts).
 
 Scraping commands share these optional flags:
-- `--render-js` — render JavaScript (+1 credit)
 - `--stealth` — bypass anti-bot detection (+4 credits)
 - `--headers <json>` — custom HTTP headers as JSON string
 - `--schema <json>` — enforce output JSON schema
@@ -63,7 +62,6 @@ just-scrape smart-scraper <url> -p <prompt>
 just-scrape smart-scraper <url> -p <prompt> --schema <json>
 just-scrape smart-scraper <url> -p <prompt> --scrolls <n>     # infinite scroll (0-100)
 just-scrape smart-scraper <url> -p <prompt> --pages <n>       # multi-page (1-100)
-just-scrape smart-scraper <url> -p <prompt> --render-js       # JS rendering (+1 credit)
 just-scrape smart-scraper <url> -p <prompt> --stealth         # anti-bot (+4 credits)
 just-scrape smart-scraper <url> -p <prompt> --cookies <json> --headers <json>
 just-scrape smart-scraper <url> -p <prompt> --plain-text
@@ -80,7 +78,7 @@ just-scrape smart-scraper https://news.example.com -p "Get headlines and dates" 
 
 # JS-heavy SPA behind anti-bot
 just-scrape smart-scraper https://app.example.com/dashboard -p "Extract user stats" \
-  --render-js --stealth
+  --stealth
 ```
 
 ### Search Scraper
@@ -113,14 +111,13 @@ Convert any webpage to clean markdown.
 
 ```bash
 just-scrape markdownify <url>
-just-scrape markdownify <url> --render-js       # +1 credit
 just-scrape markdownify <url> --stealth         # +4 credits
 just-scrape markdownify <url> --headers <json>
 ```
 
 ```bash
 just-scrape markdownify https://blog.example.com/my-article
-just-scrape markdownify https://protected.example.com --render-js --stealth
+just-scrape markdownify https://protected.example.com --stealth
 just-scrape markdownify https://docs.example.com/api --json | jq -r '.result' > api-docs.md
 ```
 
@@ -136,7 +133,7 @@ just-scrape crawl <url> --no-extraction --max-pages <n>   # markdown only (2 cre
 just-scrape crawl <url> -p <prompt> --schema <json>
 just-scrape crawl <url> -p <prompt> --rules <json>        # include_paths, same_domain
 just-scrape crawl <url> -p <prompt> --no-sitemap
-just-scrape crawl <url> -p <prompt> --render-js --stealth
+just-scrape crawl <url> -p <prompt> --stealth
 ```
 
 ```bash
@@ -157,7 +154,6 @@ Get raw HTML content from a URL.
 
 ```bash
 just-scrape scrape <url>
-just-scrape scrape <url> --render-js        # +1 credit
 just-scrape scrape <url> --stealth          # +4 credits
 just-scrape scrape <url> --branding         # extract logos/colors/fonts (+2 credits)
 just-scrape scrape <url> --country-code <iso>
@@ -269,7 +265,7 @@ done
 
 ```bash
 # JS-heavy SPA behind Cloudflare
-just-scrape smart-scraper https://protected.example.com -p "Extract data" --render-js --stealth
+just-scrape smart-scraper https://protected.example.com -p "Extract data" --stealth
 
 # With custom cookies/headers
 just-scrape smart-scraper https://example.com -p "Extract data" \
@@ -280,7 +276,6 @@ just-scrape smart-scraper https://example.com -p "Extract data" \
 
 | Feature | Extra Credits |
 |---|---|
-| `--render-js` | +1 per page |
 | `--stealth` | +4 per request |
 | `--branding` (scrape only) | +2 |
 | `search-scraper` extraction | 10 per request |
