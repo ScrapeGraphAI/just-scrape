@@ -105,7 +105,7 @@ Extract structured data from any URL using AI. [docs](https://docs.scrapegraphai
 ```bash
 just-scrape smart-scraper <url> -p <prompt>                # Extract data with AI
 just-scrape smart-scraper <url> -p <prompt> --schema <json> # Enforce output schema
-just-scrape smart-scraper <url> -p <prompt> --scrolls <n>  # Infinite scroll (0-100)
+just-scrape smart-scraper <url> -p <prompt> --scrolls <n>   # Infinite scroll (0-100)
 just-scrape smart-scraper <url> -p <prompt> --pages <n>    # Multi-page (1-100)
 just-scrape smart-scraper <url> -p <prompt> --stealth      # Anti-bot bypass (+4 credits)
 just-scrape smart-scraper <url> -p <prompt> --cookies <json> --headers <json>
@@ -125,7 +125,7 @@ just-scrape smart-scraper https://news.example.com -p "Get all article headlines
 
 # Scrape a JS-heavy SPA behind anti-bot protection
 just-scrape smart-scraper https://app.example.com/dashboard -p "Extract user stats" \
-  --render-js --stealth
+  --stealth
 ```
 
 ## Search Scraper
@@ -164,7 +164,6 @@ Convert any webpage to clean markdown. [docs](https://docs.scrapegraphai.com/ser
 
 ```bash
 just-scrape markdownify <url>                              # Convert to markdown
-just-scrape markdownify <url> --render-js                  # JS rendering (+1 credit)
 just-scrape markdownify <url> --stealth                    # Anti-bot bypass (+4 credits)
 just-scrape markdownify <url> --headers <json>             # Custom headers
 ```
@@ -176,7 +175,7 @@ just-scrape markdownify <url> --headers <json>             # Custom headers
 just-scrape markdownify https://blog.example.com/my-article
 
 # Convert a JS-rendered page behind Cloudflare
-just-scrape markdownify https://protected.example.com --render-js --stealth
+just-scrape markdownify https://protected.example.com --stealth
 
 # Pipe markdown to a file
 just-scrape markdownify https://docs.example.com/api --json | jq -r '.result' > api-docs.md
@@ -196,7 +195,7 @@ just-scrape crawl <url> --no-extraction --max-pages <n>    # Markdown only (2 cr
 just-scrape crawl <url> -p <prompt> --schema <json>        # Enforce output schema
 just-scrape crawl <url> -p <prompt> --rules <json>         # Crawl rules (include_paths, same_domain)
 just-scrape crawl <url> -p <prompt> --no-sitemap           # Skip sitemap discovery
-just-scrape crawl <url> -p <prompt> --render-js --stealth  # JS + anti-bot
+just-scrape crawl <url> -p <prompt> --stealth               # Anti-bot bypass
 ```
 
 ### Examples
@@ -242,7 +241,6 @@ Get raw HTML content from a URL. [docs](https://docs.scrapegraphai.com/services/
 
 ```bash
 just-scrape scrape <url>                                   # Raw HTML
-just-scrape scrape <url> --render-js                       # JS rendering (+1 credit)
 just-scrape scrape <url> --stealth                         # Anti-bot bypass (+4 credits)
 just-scrape scrape <url> --branding                        # Extract branding (+2 credits)
 just-scrape scrape <url> --country-code <iso>              # Geo-targeting

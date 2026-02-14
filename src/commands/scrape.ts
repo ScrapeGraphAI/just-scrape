@@ -14,7 +14,6 @@ export default defineCommand({
 			description: "Website URL to scrape",
 			required: true,
 		},
-		"render-js": { type: "boolean", description: "Enable heavy JS rendering (+1 credit)" },
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
 		branding: { type: "boolean", description: "Extract branding info (+2 credits)" },
 		"country-code": { type: "string", description: "ISO country code for geo-targeting" },
@@ -27,7 +26,6 @@ export default defineCommand({
 
 		const params: scrapegraphai.ScrapeParams = { website_url: args.url };
 
-		if (args["render-js"]) params.render_heavy_js = true;
 		if (args.stealth) params.stealth = true;
 		if (args.branding) params.branding = true;
 		if (args["country-code"]) params.country_code = args["country-code"];

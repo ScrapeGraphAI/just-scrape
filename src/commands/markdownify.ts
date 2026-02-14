@@ -14,7 +14,6 @@ export default defineCommand({
 			description: "Website URL to convert",
 			required: true,
 		},
-		"render-js": { type: "boolean", description: "Enable heavy JS rendering (+1 credit)" },
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
@@ -28,7 +27,6 @@ export default defineCommand({
 			website_url: args.url,
 		};
 
-		if (args["render-js"]) params.render_heavy_js = true;
 		if (args.stealth) params.stealth = true;
 		if (args.headers) params.headers = JSON.parse(args.headers);
 
