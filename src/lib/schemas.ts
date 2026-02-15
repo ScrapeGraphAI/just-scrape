@@ -11,7 +11,6 @@ export const SmartScraperSchema = z.object({
 	output_schema: jsonObject.optional(),
 	number_of_scrolls: z.number().int().min(0).max(100).optional(),
 	total_pages: z.number().int().min(1).max(100).optional(),
-	render_heavy_js: z.boolean().optional(),
 	stealth: z.boolean().optional(),
 	cookies: jsonStringObject.optional(),
 	headers: jsonStringObject.optional(),
@@ -31,7 +30,6 @@ export const SearchScraperSchema = z.object({
 
 export const MarkdownifySchema = z.object({
 	website_url: z.string().url(),
-	render_heavy_js: z.boolean().optional(),
 	stealth: z.boolean().optional(),
 	headers: jsonStringObject.optional(),
 	webhook_url: z.string().url().optional(),
@@ -46,7 +44,6 @@ export const CrawlSchema = z.object({
 	schema: jsonObject.optional(),
 	rules: jsonObject.optional(),
 	sitemap: z.boolean().optional(),
-	render_heavy_js: z.boolean().optional(),
 	stealth: z.boolean().optional(),
 	webhook_url: z.string().url().optional(),
 });
@@ -62,7 +59,6 @@ export const SitemapSchema = z.object({
 
 export const ScrapeSchema = z.object({
 	website_url: z.string().url(),
-	render_heavy_js: z.boolean().optional(),
 	stealth: z.boolean().optional(),
 	branding: z.boolean().optional(),
 	country_code: z.string().optional(),

@@ -23,7 +23,6 @@ export default defineCommand({
 		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
 		scrolls: { type: "string", description: "Number of infinite scrolls (0-100)" },
 		pages: { type: "string", description: "Total pages to scrape (1-100)" },
-		"render-js": { type: "boolean", description: "Enable heavy JS rendering (+1 credit)" },
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
 		cookies: { type: "string", description: "Cookies as JSON object string" },
 		headers: { type: "string", description: "Custom headers as JSON object string" },
@@ -43,7 +42,6 @@ export default defineCommand({
 		if (args.schema) params.output_schema = JSON.parse(args.schema);
 		if (args.scrolls) params.number_of_scrolls = Number(args.scrolls);
 		if (args.pages) params.total_pages = Number(args.pages);
-		if (args["render-js"]) params.render_heavy_js = true;
 		if (args.stealth) params.stealth = true;
 		if (args.cookies) params.cookies = JSON.parse(args.cookies);
 		if (args.headers) params.headers = JSON.parse(args.headers);

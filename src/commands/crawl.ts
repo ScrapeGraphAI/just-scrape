@@ -28,7 +28,6 @@ export default defineCommand({
 		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
 		rules: { type: "string", description: "Crawl rules as JSON object string" },
 		"no-sitemap": { type: "boolean", description: "Disable sitemap-based URL discovery" },
-		"render-js": { type: "boolean", description: "Enable heavy JS rendering (+1 credit/page)" },
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -46,7 +45,6 @@ export default defineCommand({
 		if (args.schema) params.schema = JSON.parse(args.schema);
 		if (args.rules) params.rules = JSON.parse(args.rules);
 		if (args["no-sitemap"]) params.sitemap = false;
-		if (args["render-js"]) params.render_heavy_js = true;
 		if (args.stealth) params.stealth = true;
 
 		out.start("Crawling");
