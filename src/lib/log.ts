@@ -30,7 +30,7 @@ export function create(quiet = false) {
 			if (!quiet) s.message(`Status: ${status}`);
 		},
 		result(data: unknown) {
-			if (quiet) console.log(JSON.stringify(data, null, 2));
+			if (quiet) console.log(JSON.stringify(data));
 			else console.log(`\n${highlight(JSON.stringify(data, null, 2))}\n`);
 		},
 		error(message?: string) {
