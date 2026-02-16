@@ -79,10 +79,14 @@ Four ways to provide it (checked in order):
 3. **Config file**: `~/.scrapegraphai/config.json`
 4. **Interactive prompt**: the CLI asks and saves to config
 
-```bash
-export JUST_SCRAPE_TIMEOUT_S=300     # Request/polling timeout in seconds (default: 120)
-JUST_SCRAPE_DEBUG=1 just-scrape ...  # Debug logging to stderr
-```
+### Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `SGAI_API_KEY` | ScrapeGraph API key | — |
+| `JUST_SCRAPE_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v1` |
+| `JUST_SCRAPE_TIMEOUT_S` | Request/polling timeout in seconds | `120` |
+| `JUST_SCRAPE_DEBUG` | Set to `1` to enable debug logging to stderr | `0` |
 
 ## JSON Mode (`--json`)
 

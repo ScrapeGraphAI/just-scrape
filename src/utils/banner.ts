@@ -19,7 +19,7 @@ const BANNER = [
 	"╚═╝╚═╝╚═╝ ╩    ╚═╝╚═╝╩╚═╩ ╩╩  ╚═╝",
 ];
 
-const TAGLINE = "  made with ♥ from scrapegraphai team";
+const TAGLINE = "made with ♥ from scrapegraphai team";
 
 const BANNER_COLOR = "#bd93f9";
 
@@ -30,5 +30,8 @@ export function showBanner() {
 	console.log(text);
 	console.log(chalk.hex(BANNER_COLOR)(TAGLINE));
 	console.log(chalk.hex(BANNER_COLOR)(`v${getVersion()}`));
+	if (process.env.JUST_SCRAPE_API_URL) {
+		console.log(chalk.yellow(`→ Custom API: ${process.env.JUST_SCRAPE_API_URL}`));
+	}
 	console.log();
 }
