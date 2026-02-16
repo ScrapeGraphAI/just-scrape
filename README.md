@@ -86,7 +86,7 @@ JUST_SCRAPE_DEBUG=1 just-scrape ...  # Debug logging to stderr
 
 ## JSON Mode (`--json`)
 
-All commands support `--json` for machine-readable output. When set, banner, spinners, and interactive prompts are suppressed — only raw JSON on stdout.
+All commands support `--json` for machine-readable output. When set, banner, spinners, and interactive prompts are suppressed — only minified JSON on stdout (saves tokens when piped to AI agents).
 
 ```bash
 just-scrape credits --json | jq '.remaining_credits'
