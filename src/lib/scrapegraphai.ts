@@ -36,7 +36,7 @@ export type {
 	SmartScraperParams,
 } from "../types/index.js";
 
-const BASE_URL = "https://api.scrapegraphai.com/v1";
+const BASE_URL = process.env.JUST_SCRAPE_API_URL || "https://api.scrapegraphai.com/v1";
 const POLL_INTERVAL_MS = 3000;
 
 function debug(label: string, data?: unknown) {
