@@ -70,8 +70,9 @@ Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
 
 ## Coding Agent Skill
 
-Use just-scrape as a skill for AI coding agents via [Vercel's skills.sh](https://skills.sh):
+You can use just-scrape as a skill for AI coding agents via [Vercel's skills.sh](https://skills.sh) with tis tutorial.
 
+Or you can manually install it:
 ```bash
 bunx skills add https://github.com/ScrapeGraphAI/just-scrape
 ```
