@@ -58,6 +58,7 @@ pnpm add -g just-scrape              # pnpm
 yarn global add just-scrape           # yarn
 bun add -g just-scrape               # bun
 npx just-scrape --help               # or run without installing
+bunx just-scrape --help              # bun equivalent
 ```
 
 Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
