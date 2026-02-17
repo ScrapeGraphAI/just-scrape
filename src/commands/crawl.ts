@@ -1,7 +1,7 @@
 import { defineCommand } from "citty";
+import * as scrapegraphai from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
-import * as scrapegraphai from "../lib/scrapegraphai.js";
 
 export default defineCommand({
 	meta: {
@@ -36,16 +36,21 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/services/smartcrawler");
 		const key = await resolveApiKey(!!args.json);
 
-		const params: scrapegraphai.CrawlParams = { url: args.url };
+		const base: Record<string, unknown> = { url: args.url };
+		if (args["max-pages"]) base.max_pages = Number(args["max-pages"]);
+		if (args.depth) base.depth = Number(args.depth);
+		if (args.rules) base.rules = JSON.parse(args.rules);
+		if (args["no-sitemap"]) base.sitemap = false;
+		if (args.stealth) base.stealth = true;
 
-		if (args.prompt) params.prompt = args.prompt;
-		if (args["no-extraction"]) params.extraction_mode = false;
-		if (args["max-pages"]) params.max_pages = Number(args["max-pages"]);
-		if (args.depth) params.depth = Number(args.depth);
-		if (args.schema) params.schema = JSON.parse(args.schema);
-		if (args.rules) params.rules = JSON.parse(args.rules);
-		if (args["no-sitemap"]) params.sitemap = false;
-		if (args.stealth) params.stealth = true;
+		if (args["no-extraction"]) {
+			base.extraction_mode = false;
+		} else {
+			if (args.prompt) base.prompt = args.prompt;
+			if (args.schema) base.schema = JSON.parse(args.schema);
+		}
+
+		const params = base as scrapegraphai.CrawlParams;
 
 		out.start("Crawling");
 		const result = await scrapegraphai.crawl(key, params, out.poll);

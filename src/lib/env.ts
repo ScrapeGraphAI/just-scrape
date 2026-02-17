@@ -1,10 +1,17 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { z } from "zod";
 
 export const CONFIG_DIR = join(homedir(), ".scrapegraphai");
 export const CONFIG_PATH = join(CONFIG_DIR, "config.json");
+
+if (process.env.JUST_SCRAPE_API_URL && !process.env.SGAI_API_URL)
+	process.env.SGAI_API_URL = process.env.JUST_SCRAPE_API_URL;
+
+if (process.env.JUST_SCRAPE_DEBUG === "1" && !process.env.SGAI_DEBUG) process.env.SGAI_DEBUG = "1";
+
+if (process.env.JUST_SCRAPE_TIMEOUT_S && !process.env.SGAI_TIMEOUT_S)
+	process.env.SGAI_TIMEOUT_S = process.env.JUST_SCRAPE_TIMEOUT_S;
 
 function loadConfigFile(): Record<string, unknown> {
 	if (!existsSync(CONFIG_PATH)) return {};
@@ -15,24 +22,15 @@ function loadConfigFile(): Record<string, unknown> {
 	}
 }
 
-const EnvSchema = z.object({
-	apiKey: z.string().optional(),
-	debug: z.boolean().default(false),
-	timeoutS: z.number().int().positive().default(120),
-});
-
-export type Env = z.infer<typeof EnvSchema>;
+export type Env = {
+	apiKey?: string;
+};
 
 function resolve(): Env {
 	const config = loadConfigFile();
-
-	return EnvSchema.parse({
+	return {
 		apiKey: process.env.SGAI_API_KEY || (config["api-key"] as string) || undefined,
-		debug: process.env.JUST_SCRAPE_DEBUG === "1",
-		timeoutS: process.env.JUST_SCRAPE_TIMEOUT_S
-			? Number(process.env.JUST_SCRAPE_TIMEOUT_S)
-			: 60 * 2,
-	});
+	};
 }
 
 export const env = resolve();

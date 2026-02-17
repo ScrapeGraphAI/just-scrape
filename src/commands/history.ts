@@ -1,10 +1,10 @@
 import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
+import { HISTORY_SERVICES } from "scrapegraph-js";
+import * as scrapegraphai from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
-import { HISTORY_SERVICES } from "../lib/schemas.js";
-import * as scrapegraphai from "../lib/scrapegraphai.js";
 
 const VALID = HISTORY_SERVICES.join(", ");
 const LOAD_MORE = "__load_more__";
