@@ -44,3 +44,7 @@ temp/
 
 # Bun
 bun.lockb
+
+# API comparison data
+data/
+scripts/

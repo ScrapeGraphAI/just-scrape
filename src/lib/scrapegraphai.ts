@@ -188,7 +188,12 @@ export async function smartScraper(
 ): Promise<ApiResult<SmartScraperResponse>> {
 	try {
 		SmartScraperSchema.parse(params);
-		const { data, elapsedMs } = await request<SmartScraperResponse>("POST", "/smartscraper", apiKey, params);
+		const { data, elapsedMs } = await request<SmartScraperResponse>(
+			"POST",
+			"/smartscraper",
+			apiKey,
+			params,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -201,7 +206,12 @@ export async function searchScraper(
 ): Promise<ApiResult<SearchScraperResponse>> {
 	try {
 		SearchScraperSchema.parse(params);
-		const { data, elapsedMs } = await request<SearchScraperResponse>("POST", "/searchscraper", apiKey, params);
+		const { data, elapsedMs } = await request<SearchScraperResponse>(
+			"POST",
+			"/searchscraper",
+			apiKey,
+			params,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -214,7 +224,12 @@ export async function markdownify(
 ): Promise<ApiResult<MarkdownifyResponse>> {
 	try {
 		MarkdownifySchema.parse(params);
-		const { data, elapsedMs } = await request<MarkdownifyResponse>("POST", "/markdownify", apiKey, params);
+		const { data, elapsedMs } = await request<MarkdownifyResponse>(
+			"POST",
+			"/markdownify",
+			apiKey,
+			params,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -241,7 +256,13 @@ export async function crawl(
 ): Promise<ApiResult<CrawlResponse>> {
 	try {
 		CrawlSchema.parse(params);
-		const { data, elapsedMs } = await submitAndPoll<CrawlResponse>("/crawl", apiKey, params, "crawl_id", onPoll);
+		const { data, elapsedMs } = await submitAndPoll<CrawlResponse>(
+			"/crawl",
+			apiKey,
+			params,
+			"crawl_id",
+			onPoll,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -254,7 +275,12 @@ export async function agenticScraper(
 ): Promise<ApiResult<AgenticScraperResponse>> {
 	try {
 		AgenticScraperSchema.parse(params);
-		const { data, elapsedMs } = await request<AgenticScraperResponse>("POST", "/agentic-scrapper", apiKey, params);
+		const { data, elapsedMs } = await request<AgenticScraperResponse>(
+			"POST",
+			"/agentic-scrapper",
+			apiKey,
+			params,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -267,7 +293,12 @@ export async function generateSchema(
 ): Promise<ApiResult<GenerateSchemaResponse>> {
 	try {
 		GenerateSchemaSchema.parse(params);
-		const { data, elapsedMs } = await request<GenerateSchemaResponse>("POST", "/generate_schema", apiKey, params);
+		const { data, elapsedMs } = await request<GenerateSchemaResponse>(
+			"POST",
+			"/generate_schema",
+			apiKey,
+			params,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
