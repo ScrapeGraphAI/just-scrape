@@ -43,7 +43,7 @@ export default defineCommand({
 		if (args["use-session"]) params.use_session = true;
 
 		out.start("Running browser automation");
-		const result = await scrapegraphai.agenticScraper(key, params, out.poll);
+		const result = await scrapegraphai.agenticScraper(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);

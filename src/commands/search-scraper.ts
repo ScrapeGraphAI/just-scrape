@@ -43,7 +43,7 @@ export default defineCommand({
 		if (args.headers) params.headers = JSON.parse(args.headers);
 
 		out.start("Searching");
-		const result = await scrapegraphai.searchScraper(key, params, out.poll);
+		const result = await scrapegraphai.searchScraper(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);

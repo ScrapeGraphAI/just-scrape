@@ -31,7 +31,7 @@ export default defineCommand({
 		if (args.headers) params.headers = JSON.parse(args.headers);
 
 		out.start("Converting to markdown");
-		const result = await scrapegraphai.markdownify(key, params, out.poll);
+		const result = await scrapegraphai.markdownify(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);

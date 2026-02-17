@@ -31,7 +31,7 @@ export default defineCommand({
 		if (args["country-code"]) params.country_code = args["country-code"];
 
 		out.start("Scraping");
-		const result = await scrapegraphai.scrape(key, params, out.poll);
+		const result = await scrapegraphai.scrape(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);
