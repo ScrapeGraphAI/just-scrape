@@ -48,7 +48,7 @@ export default defineCommand({
 		if (args["plain-text"]) params.plain_text = true;
 
 		out.start("Scraping");
-		const result = await scrapegraphai.smartScraper(key, params, out.poll);
+		const result = await scrapegraphai.smartScraper(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);

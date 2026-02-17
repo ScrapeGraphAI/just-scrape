@@ -11,16 +11,26 @@ Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-po
 
 ```
 just-scrape/
+├── docs/                            # API response docs per endpoint
+│   ├── smartscraper.md
+│   ├── searchscraper.md
+│   ├── markdownify.md
+│   ├── crawl.md
+│   ├── scrape.md
+│   ├── agenticscraper.md
+│   ├── generate-schema.md
+│   ├── sitemap.md
+│   └── credits.md
 ├── src/
 │   ├── cli.ts                       # Entry point, citty main command + subcommands
 │   ├── lib/
 │   │   ├── env.ts                   # Zod-parsed env config (API key, debug, timeout)
 │   │   ├── folders.ts               # API key resolution + interactive prompt
-│   │   ├── scrapegraphai.ts         # SDK layer — all API functions
+│   │   ├── scrapegraphai.ts         # SDK layer — all API functions (typed responses)
 │   │   ├── schemas.ts               # Zod validation schemas
 │   │   └── log.ts                   # Logger factory + syntax-highlighted JSON output
 │   ├── types/
-│   │   └── index.ts                 # Zod-derived types + ApiResult
+│   │   └── index.ts                 # Zod-derived types + ApiResult + response types
 │   ├── commands/
 │   │   ├── smart-scraper.ts
 │   │   ├── search-scraper.ts

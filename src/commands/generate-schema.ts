@@ -28,7 +28,7 @@ export default defineCommand({
 		if (args["existing-schema"]) params.existing_schema = JSON.parse(args["existing-schema"]);
 
 		out.start("Generating schema");
-		const result = await scrapegraphai.generateSchema(key, params, out.poll);
+		const result = await scrapegraphai.generateSchema(key, params);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);

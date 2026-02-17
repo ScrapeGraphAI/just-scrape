@@ -41,13 +41,13 @@ function expectGet(callIndex: number, path: string) {
 }
 
 // ---------------------------------------------------------------------------
-// smartScraper — exhaustive (tests all shared internals)
+// smartScraper — sync endpoint, tests shared HTTP internals
 // ---------------------------------------------------------------------------
 
 describe("smartScraper", () => {
 	const params = { user_prompt: "Extract prices", website_url: "https://example.com" };
 
-	test("immediate completion", async () => {
+	test("success", async () => {
 		const body = { status: "completed", result: { prices: [10, 20] } };
 		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
 
@@ -58,43 +58,6 @@ describe("smartScraper", () => {
 		expect(res.elapsedMs).toBeGreaterThanOrEqual(0);
 		expect(fetchSpy).toHaveBeenCalledTimes(1);
 		expectPost(0, "/smartscraper", params);
-	});
-
-	test("polls when POST returns pending", async () => {
-		const pollResult = { status: "completed", request_id: "req-1", result: { data: "scraped" } };
-		fetchSpy = spyOn(globalThis, "fetch")
-			.mockResolvedValueOnce(json({ status: "pending", request_id: "req-1" }))
-			.mockResolvedValueOnce(json(pollResult));
-
-		const res = await scrapegraphai.smartScraper(API_KEY, params);
-
-		expect(res.status).toBe("success");
-		expect(res.data).toEqual(pollResult);
-		expect(fetchSpy).toHaveBeenCalledTimes(2);
-		expectPost(0, "/smartscraper", params);
-		expectGet(1, "/smartscraper/req-1");
-	});
-
-	test("calls onPoll callback", async () => {
-		const statuses: string[] = [];
-		fetchSpy = spyOn(globalThis, "fetch")
-			.mockResolvedValueOnce(json({ status: "pending", request_id: "req-1" }))
-			.mockResolvedValueOnce(json({ status: "completed", request_id: "req-1" }));
-
-		await scrapegraphai.smartScraper(API_KEY, params, (s) => statuses.push(s));
-
-		expect(statuses).toEqual(["completed"]);
-	});
-
-	test("poll failure", async () => {
-		fetchSpy = spyOn(globalThis, "fetch")
-			.mockResolvedValueOnce(json({ status: "pending", request_id: "req-1" }))
-			.mockResolvedValueOnce(json({ status: "failed", error: "Job exploded" }));
-
-		const res = await scrapegraphai.smartScraper(API_KEY, params);
-
-		expect(res.status).toBe("error");
-		expect(res.error).toBe("Job exploded");
 	});
 
 	test("validation failure", async () => {
@@ -247,7 +210,7 @@ describe("scrape", () => {
 });
 
 // ---------------------------------------------------------------------------
-// crawl — uses crawl_id instead of request_id
+// crawl — async endpoint, uses crawl_id, tests polling internals
 // ---------------------------------------------------------------------------
 
 describe("crawl", () => {
@@ -274,6 +237,28 @@ describe("crawl", () => {
 		expect(res.status).toBe("success");
 		expect(fetchSpy).toHaveBeenCalledTimes(2);
 		expectGet(1, "/crawl/crawl-99");
+	});
+
+	test("calls onPoll callback", async () => {
+		const statuses: string[] = [];
+		fetchSpy = spyOn(globalThis, "fetch")
+			.mockResolvedValueOnce(json({ status: "pending", crawl_id: "crawl-99" }))
+			.mockResolvedValueOnce(json({ status: "done", crawl_id: "crawl-99", pages: [] }));
+
+		await scrapegraphai.crawl(API_KEY, params, (s) => statuses.push(s));
+
+		expect(statuses).toEqual(["done"]);
+	});
+
+	test("poll failure", async () => {
+		fetchSpy = spyOn(globalThis, "fetch")
+			.mockResolvedValueOnce(json({ status: "pending", crawl_id: "crawl-99" }))
+			.mockResolvedValueOnce(json({ status: "failed", error: "Crawl exploded" }));
+
+		const res = await scrapegraphai.crawl(API_KEY, params);
+
+		expect(res.status).toBe("error");
+		expect(res.error).toBe("Crawl exploded");
 	});
 
 	test("validation failure", async () => {
