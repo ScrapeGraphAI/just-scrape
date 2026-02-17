@@ -1,7 +1,7 @@
 import { defineCommand } from "citty";
+import * as scrapegraphai from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
-import * as scrapegraphai from "../lib/scrapegraphai.js";
 
 export default defineCommand({
 	meta: {
@@ -34,9 +34,8 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/services/agenticscraper");
 		const key = await resolveApiKey(!!args.json);
 
-		const params: scrapegraphai.AgenticScraperParams = { url: args.url };
-
-		if (args.steps) params.steps = args.steps.split(",").map((s) => s.trim());
+		const steps = args.steps ? args.steps.split(",").map((s) => s.trim()) : [];
+		const params: scrapegraphai.AgenticScraperParams = { url: args.url, steps };
 		if (args.prompt) params.user_prompt = args.prompt;
 		if (args.schema) params.output_schema = JSON.parse(args.schema);
 		if (args["ai-extraction"]) params.ai_extraction = true;

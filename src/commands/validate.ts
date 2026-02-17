@@ -1,7 +1,7 @@
 import { defineCommand } from "citty";
+import * as scrapegraphai from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
-import * as scrapegraphai from "../lib/scrapegraphai.js";
 
 export default defineCommand({
 	meta: {

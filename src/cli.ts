@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./lib/env.js";
 import { defineCommand, runMain } from "citty";
 import { getVersion, showBanner } from "./utils/banner.js";
 

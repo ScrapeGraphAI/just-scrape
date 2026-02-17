@@ -28,7 +28,7 @@
 		"chalk": "^5.4.1",
 		"citty": "^0.1.6",
 		"dotenv": "^17.2.4",
-		"zod": "^4.3.6"
+		"scrapegraph-js": "^1.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

@@ -24,13 +24,9 @@ just-scrape/
 ├── src/
 │   ├── cli.ts                       # Entry point, citty main command + subcommands
 │   ├── lib/
-│   │   ├── env.ts                   # Zod-parsed env config (API key, debug, timeout)
+│   │   ├── env.ts                   # Env config (API key, JUST_SCRAPE_* → SGAI_* bridge)
 │   │   ├── folders.ts               # API key resolution + interactive prompt
-│   │   ├── scrapegraphai.ts         # SDK layer — all API functions (typed responses)
-│   │   ├── schemas.ts               # Zod validation schemas
 │   │   └── log.ts                   # Logger factory + syntax-highlighted JSON output
-│   ├── types/
-│   │   └── index.ts                 # Zod-derived types + ApiResult + response types
 │   ├── commands/
 │   │   ├── smart-scraper.ts
 │   │   ├── search-scraper.ts
@@ -45,8 +41,6 @@ just-scrape/
 │   │   └── validate.ts
 │   └── utils/
 │       └── banner.ts                # ASCII banner + version from package.json
-├── tests/
-│   └── scrapegraphai.test.ts        # SDK layer tests (mocked fetch)
 ├── dist/                            # Build output (git-ignored)
 │   └── cli.mjs                      # Bundled ESM with shebang
 ├── package.json
@@ -396,10 +390,9 @@ bun run dev --help
 | CLI Framework | **citty** (unjs) |
 | Prompts | **@clack/prompts** |
 | Styling | **chalk** v5 (ESM) |
-| Validation | **zod** v4 |
+| SDK | **scrapegraph-js** |
 | Env | **dotenv** |
 | Lint / Format | **Biome** |
-| Testing | **Bun test** (built-in) |
 | Target | **Node.js 22+**, ESM-only |
 
 ### Scripts
@@ -409,15 +402,8 @@ bun run dev                          # Run CLI from TS source
 bun run build                        # Bundle ESM to dist/cli.mjs
 bun run lint                         # Lint + format check
 bun run format                       # Auto-format
-bun test                             # Run tests
 bun run check                        # Type-check + lint
 ```
-
-### Testing
-
-Tests mock all API calls via `spyOn(globalThis, "fetch")` — no network, no API key needed.
-
-Covers: success paths, polling, HTTP error mapping (401/402/422/429/500), Zod validation, timeouts, and network failures.
 
 ## License
 
