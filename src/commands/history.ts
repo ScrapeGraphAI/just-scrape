@@ -1,11 +1,10 @@
 import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
-import { HISTORY_SERVICES } from "scrapegraph-js";
-import * as scrapegraphai from "scrapegraph-js";
-import { resolveApiKey } from "../lib/folders.js";
+import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
+const HISTORY_SERVICES = ["scrape", "extract", "search", "monitor", "crawl"] as const;
 const VALID = HISTORY_SERVICES.join(", ");
 const LOAD_MORE = "__load_more__";
 
@@ -49,98 +48,107 @@ export default defineCommand({
 			required: true,
 		},
 		page: { type: "string", description: "Page number (default: 1)" },
-		"page-size": { type: "string", description: "Results per page (default: 10, max: 100)" },
+		"page-size": { type: "string", description: "Results per page (default: 20, max: 100)" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
 		const quiet = !!args.json;
 		const out = log.create(quiet);
-		const key = await resolveApiKey(quiet);
-		const service = args.service as scrapegraphai.HistoryParams["service"];
+		const sgai = await createClient(quiet);
+		const service = args.service as (typeof HISTORY_SERVICES)[number];
 		const requestId = (args as { _: string[] })._.at(1);
-		const pageSize = args["page-size"] ? Number(args["page-size"]) : 10;
+		const limit = args["page-size"] ? Number(args["page-size"]) : 20;
 		let page = args.page ? Number(args.page) : 1;
 
 		const fetchPage = async (pg: number) => {
-			const r = await scrapegraphai.history(key, { service, page: pg, page_size: pageSize });
-			if (r.status === "error") out.error(r.error);
-			const d = r.data as { requests: Record<string, unknown>[]; next_key?: string };
-			return { rows: d.requests ?? [], hasMore: !!d.next_key, ms: r.elapsedMs };
+			const t0 = performance.now();
+			const r = await sgai.history({ service, page: pg, limit });
+			const ms = Math.round(performance.now() - t0);
+			const d = r.data as { data?: Record<string, unknown>[]; requests?: Record<string, unknown>[]; next_key?: string; total?: number };
+			return { rows: d.data ?? d.requests ?? [], hasMore: !!d.next_key || (d.total != null && pg * limit < d.total), ms };
 		};
 
 		if (quiet || requestId) {
-			const { rows } = await fetchPage(page);
-			if (requestId) {
-				const match = rows.find((r) => getId(r) === requestId);
-				if (!match) out.error(`Request ${requestId} not found on page ${page}`);
-				out.result(match);
-				return;
+			try {
+				const { rows } = await fetchPage(page);
+				if (requestId) {
+					const match = rows.find((r) => getId(r) === requestId);
+					if (!match) out.error(`Request ${requestId} not found on page ${page}`);
+					out.result(match);
+					return;
+				}
+				out.result(rows);
+			} catch (err) {
+				out.error(err instanceof Error ? err.message : String(err));
 			}
-			out.result(rows);
 			return;
 		}
 
 		out.start(`Fetching ${service} history`);
-		const first = await fetchPage(page);
-		out.stop(first.ms);
+		try {
+			const first = await fetchPage(page);
+			out.stop(first.ms);
 
-		if (first.rows.length === 0) {
-			p.log.warning("No history found.");
-			return;
-		}
-
-		const allRows = [...first.rows];
-		let hasMore = first.hasMore;
-
-		while (true) {
-			const options = allRows.map((row) => ({
-				value: getId(row),
-				label: label(row),
-				hint: hint(row),
-			}));
-
-			if (hasMore) {
-				options.push({
-					value: LOAD_MORE,
-					label: chalk.blue.bold("↓ Load more…"),
-					hint: `page ${page + 1}`,
-				});
-			}
-
-			const selected = await p.select({
-				message: `${allRows.length} requests — select one to view`,
-				options,
-				maxItems: 15,
-			});
-
-			if (p.isCancel(selected)) {
-				p.cancel("Cancelled");
+			if (first.rows.length === 0) {
+				p.log.warning("No history found.");
 				return;
 			}
 
-			if (selected === LOAD_MORE) {
-				page++;
-				const ls = p.spinner();
-				ls.start(`Loading page ${page}`);
-				const next = await fetchPage(page);
-				ls.stop("Done");
+			const allRows = [...first.rows];
+			let hasMore = first.hasMore;
 
-				if (next.rows.length === 0) {
-					hasMore = false;
-					p.log.warning("No more results.");
+			while (true) {
+				const options = allRows.map((row) => ({
+					value: getId(row),
+					label: label(row),
+					hint: hint(row),
+				}));
+
+				if (hasMore) {
+					options.push({
+						value: LOAD_MORE,
+						label: chalk.blue.bold("↓ Load more…"),
+						hint: `page ${page + 1}`,
+					});
+				}
+
+				const selected = await p.select({
+					message: `${allRows.length} requests — select one to view`,
+					options,
+					maxItems: 15,
+				});
+
+				if (p.isCancel(selected)) {
+					p.cancel("Cancelled");
+					return;
+				}
+
+				if (selected === LOAD_MORE) {
+					page++;
+					const ls = p.spinner();
+					ls.start(`Loading page ${page}`);
+					const next = await fetchPage(page);
+					ls.stop("Done");
+
+					if (next.rows.length === 0) {
+						hasMore = false;
+						p.log.warning("No more results.");
+						continue;
+					}
+
+					allRows.push(...next.rows);
+					hasMore = next.hasMore;
 					continue;
 				}
 
-				allRows.push(...next.rows);
-				hasMore = next.hasMore;
-				continue;
+				const match = allRows.find((r) => getId(r) === selected);
+				if (match) out.result(match);
+
+				const back = await p.confirm({ message: "Back to list?" });
+				if (p.isCancel(back) || !back) return;
 			}
-
-			const match = allRows.find((r) => getId(r) === selected);
-			if (match) out.result(match);
-
-			const back = await p.confirm({ message: "Back to list?" });
-			if (p.isCancel(back) || !back) return;
+		} catch (err) {
+			out.error(err instanceof Error ? err.message : String(err));
 		}
 	},
 });

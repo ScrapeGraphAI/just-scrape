@@ -1,7 +1,8 @@
 import { defineCommand } from "citty";
-import * as scrapegraphai from "scrapegraph-js";
-import { resolveApiKey } from "../lib/folders.js";
+import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
+
+const POLL_INTERVAL_MS = 3000;
 
 export default defineCommand({
 	meta: {
@@ -14,49 +15,54 @@ export default defineCommand({
 			description: "Starting URL to crawl",
 			required: true,
 		},
-		prompt: {
-			type: "string",
-			alias: "p",
-			description: "Extraction prompt (required when extraction mode is on)",
-		},
-		"no-extraction": {
-			type: "boolean",
-			description: "Return markdown only (2 credits/page instead of 10)",
-		},
-		"max-pages": { type: "string", description: "Maximum pages to crawl (default 10)" },
-		depth: { type: "string", description: "Crawl depth (default 1)" },
-		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
-		rules: { type: "string", description: "Crawl rules as JSON object string" },
-		"no-sitemap": { type: "boolean", description: "Disable sitemap-based URL discovery" },
+		"max-pages": { type: "string", description: "Maximum pages to crawl (default 50)" },
+		"max-depth": { type: "string", description: "Crawl depth (default 2)" },
+		"max-links-per-page": { type: "string", description: "Max links per page (default 10)" },
+		"allow-external": { type: "boolean", description: "Allow crawling external domains" },
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
-		out.docs("https://docs.scrapegraphai.com/services/smartcrawler");
-		const key = await resolveApiKey(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/api-reference/crawl");
+		const sgai = await createClient(!!args.json);
 
-		const base: Record<string, unknown> = { url: args.url };
-		if (args["max-pages"]) base.max_pages = Number(args["max-pages"]);
-		if (args.depth) base.depth = Number(args.depth);
-		if (args.rules) base.rules = JSON.parse(args.rules);
-		if (args["no-sitemap"]) base.sitemap = false;
-		if (args.stealth) base.stealth = true;
-
-		if (args["no-extraction"]) {
-			base.extraction_mode = false;
-		} else {
-			if (args.prompt) base.prompt = args.prompt;
-			if (args.schema) base.schema = JSON.parse(args.schema);
-		}
-
-		const params = base as scrapegraphai.CrawlParams;
+		const crawlOptions: Record<string, unknown> = {};
+		if (args["max-pages"]) crawlOptions.maxPages = Number(args["max-pages"]);
+		if (args["max-depth"]) crawlOptions.maxDepth = Number(args["max-depth"]);
+		if (args["max-links-per-page"])
+			crawlOptions.maxLinksPerPage = Number(args["max-links-per-page"]);
+		if (args["allow-external"]) crawlOptions.allowExternal = true;
+		if (args.stealth) crawlOptions.fetchConfig = { stealth: true };
 
 		out.start("Crawling");
-		const result = await scrapegraphai.crawl(key, params, out.poll);
-		out.stop(result.elapsedMs);
+		const t0 = performance.now();
+		try {
+			const job = await sgai.crawl.start(args.url, crawlOptions as any);
+			const jobId = (job.data as { id: string }).id;
 
-		if (result.data) out.result(result.data);
-		else out.error(result.error);
+			if (!jobId) {
+				out.stop(Math.round(performance.now() - t0));
+				out.result(job.data);
+				return;
+			}
+
+			// Poll until the crawl completes
+			while (true) {
+				await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+				const status = await sgai.crawl.status(jobId);
+				const statusData = status.data as { status: string; [key: string]: unknown };
+				out.poll(statusData.status);
+
+				if (statusData.status === "completed" || statusData.status === "failed" || statusData.status === "cancelled") {
+					out.stop(Math.round(performance.now() - t0));
+					out.result(status.data);
+					return;
+				}
+			}
+		} catch (err) {
+			out.stop(Math.round(performance.now() - t0));
+			out.error(err instanceof Error ? err.message : String(err));
+		}
 	},
 });

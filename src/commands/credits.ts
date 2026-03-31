@@ -1,6 +1,5 @@
 import { defineCommand } from "citty";
-import * as scrapegraphai from "scrapegraph-js";
-import { resolveApiKey } from "../lib/folders.js";
+import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
 export default defineCommand({
@@ -13,13 +12,17 @@ export default defineCommand({
 	},
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
-		const key = await resolveApiKey(!!args.json);
+		const sgai = await createClient(!!args.json);
 
 		out.start("Fetching credits");
-		const result = await scrapegraphai.getCredits(key);
-		out.stop(result.elapsedMs);
-
-		if (result.data) out.result(result.data);
-		else out.error(result.error);
+		const t0 = performance.now();
+		try {
+			const result = await sgai.credits();
+			out.stop(Math.round(performance.now() - t0));
+			out.result(result.data);
+		} catch (err) {
+			out.stop(Math.round(performance.now() - t0));
+			out.error(err instanceof Error ? err.message : String(err));
+		}
 	},
 });

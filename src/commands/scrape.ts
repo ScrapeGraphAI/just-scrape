@@ -1,12 +1,11 @@
 import { defineCommand } from "citty";
-import * as scrapegraphai from "scrapegraph-js";
-import { resolveApiKey } from "../lib/folders.js";
+import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
 export default defineCommand({
 	meta: {
 		name: "scrape",
-		description: "Get raw HTML content from a URL",
+		description: "Scrape content from a URL (markdown, html, screenshot, or branding)",
 	},
 	args: {
 		url: {
@@ -14,27 +13,37 @@ export default defineCommand({
 			description: "Website URL to scrape",
 			required: true,
 		},
+		format: {
+			type: "string",
+			alias: "f",
+			description: "Output format: markdown (default), html, screenshot, branding",
+		},
 		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
-		branding: { type: "boolean", description: "Extract branding info (+2 credits)" },
-		"country-code": { type: "string", description: "ISO country code for geo-targeting" },
+		country: { type: "string", description: "ISO country code for geo-targeting" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
-		out.docs("https://docs.scrapegraphai.com/services/scrape");
-		const key = await resolveApiKey(!!args.json);
+		out.docs("https://docs.scrapegraphai.com/api-reference/scrape");
+		const sgai = await createClient(!!args.json);
 
-		const params: scrapegraphai.ScrapeParams = { website_url: args.url };
+		const fetchConfig: Record<string, unknown> = {};
+		if (args.stealth) fetchConfig.stealth = true;
+		if (args.country) fetchConfig.country = args.country;
 
-		if (args.stealth) params.stealth = true;
-		if (args.branding) params.branding = true;
-		if (args["country-code"]) params.country_code = args["country-code"];
+		const scrapeOptions: Record<string, unknown> = {};
+		if (args.format) scrapeOptions.format = args.format;
+		if (Object.keys(fetchConfig).length > 0) scrapeOptions.fetchConfig = fetchConfig;
 
 		out.start("Scraping");
-		const result = await scrapegraphai.scrape(key, params);
-		out.stop(result.elapsedMs);
-
-		if (result.data) out.result(result.data);
-		else out.error(result.error);
+		const t0 = performance.now();
+		try {
+			const result = await sgai.scrape(args.url, scrapeOptions as any);
+			out.stop(Math.round(performance.now() - t0));
+			out.result(result.data);
+		} catch (err) {
+			out.stop(Math.round(performance.now() - t0));
+			out.error(err instanceof Error ? err.message : String(err));
+		}
 	},
 });
