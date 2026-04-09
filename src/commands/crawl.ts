@@ -19,7 +19,7 @@ export default defineCommand({
 		"max-depth": { type: "string", description: "Crawl depth (default 2)" },
 		"max-links-per-page": { type: "string", description: "Max links per page (default 10)" },
 		"allow-external": { type: "boolean", description: "Allow crawling external domains" },
-		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
@@ -33,7 +33,7 @@ export default defineCommand({
 		if (args["max-links-per-page"])
 			crawlOptions.maxLinksPerPage = Number(args["max-links-per-page"]);
 		if (args["allow-external"]) crawlOptions.allowExternal = true;
-		if (args.stealth) crawlOptions.fetchConfig = { stealth: true };
+		if (args.mode) crawlOptions.fetchConfig = { mode: args.mode };
 
 		out.start("Crawling");
 		const t0 = performance.now();

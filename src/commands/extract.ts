@@ -21,7 +21,7 @@ export default defineCommand({
 		},
 		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
 		scrolls: { type: "string", description: "Number of infinite scrolls (0-100)" },
-		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		mode: { type: "string", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
 		cookies: { type: "string", description: "Cookies as JSON object string" },
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		country: { type: "string", description: "ISO country code for geo-targeting" },
@@ -34,7 +34,7 @@ export default defineCommand({
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
-		if (args.stealth) fetchConfig.stealth = true;
+		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.cookies) fetchConfig.cookies = JSON.parse(args.cookies);
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 		if (args.country) fetchConfig.country = args.country;

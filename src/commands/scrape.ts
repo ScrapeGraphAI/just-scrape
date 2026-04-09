@@ -18,7 +18,7 @@ export default defineCommand({
 			alias: "f",
 			description: "Output format: markdown (default), html, screenshot, branding",
 		},
-		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
 		country: { type: "string", description: "ISO country code for geo-targeting" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -28,7 +28,7 @@ export default defineCommand({
 		const sgai = await createClient(!!args.json);
 
 		const fetchConfig: Record<string, unknown> = {};
-		if (args.stealth) fetchConfig.stealth = true;
+		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.country) fetchConfig.country = args.country;
 
 		const scrapeOptions: Record<string, unknown> = {};

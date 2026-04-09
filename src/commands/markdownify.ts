@@ -13,7 +13,7 @@ export default defineCommand({
 			description: "Website URL to convert",
 			required: true,
 		},
-		stealth: { type: "boolean", description: "Bypass bot detection (+4 credits)" },
+		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -23,7 +23,7 @@ export default defineCommand({
 		const sgai = await createClient(!!args.json);
 
 		const fetchConfig: Record<string, unknown> = {};
-		if (args.stealth) fetchConfig.stealth = true;
+		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 
 		const scrapeOptions: Record<string, unknown> = { format: "markdown" };
