@@ -19,7 +19,17 @@ export default defineCommand({
 		"max-depth": { type: "string", description: "Crawl depth (default 2)" },
 		"max-links-per-page": { type: "string", description: "Max links per page (default 10)" },
 		"allow-external": { type: "boolean", description: "Allow crawling external domains" },
-		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
+		format: {
+			type: "string",
+			alias: "f",
+			description:
+				"Page format: markdown (default), html, screenshot, branding, links, images, summary",
+		},
+		mode: {
+			type: "string",
+			alias: "m",
+			description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth",
+		},
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
@@ -33,6 +43,7 @@ export default defineCommand({
 		if (args["max-links-per-page"])
 			crawlOptions.maxLinksPerPage = Number(args["max-links-per-page"]);
 		if (args["allow-external"]) crawlOptions.allowExternal = true;
+		if (args.format) crawlOptions.format = args.format;
 		if (args.mode) crawlOptions.fetchConfig = { mode: args.mode };
 
 		out.start("Crawling");
@@ -54,7 +65,11 @@ export default defineCommand({
 				const statusData = status.data as { status: string; [key: string]: unknown };
 				out.poll(statusData.status);
 
-				if (statusData.status === "completed" || statusData.status === "failed" || statusData.status === "cancelled") {
+				if (
+					statusData.status === "completed" ||
+					statusData.status === "failed" ||
+					statusData.status === "cancelled"
+				) {
 					out.stop(Math.round(performance.now() - t0));
 					out.result(status.data);
 					return;

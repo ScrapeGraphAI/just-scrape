@@ -132,10 +132,13 @@ Search the web and extract structured data from results (replaces `search-scrape
 ### Usage
 
 ```bash
-just-scrape search <query>                            # AI-powered web search
-just-scrape search <query> --num-results <n>          # Sources to scrape (1-20, default 3)
-just-scrape search <query> -p <prompt>                # Extraction prompt for results
-just-scrape search <query> --schema <json>            # Enforce output schema
+just-scrape search <query>                                    # AI-powered web search
+just-scrape search <query> --num-results <n>                  # Sources to scrape (1-20, default 3)
+just-scrape search <query> -p <prompt>                        # Extraction prompt for results
+just-scrape search <query> --schema <json>                    # Enforce output schema
+just-scrape search <query> --location-geo-code <code>         # Geo-target search (e.g. 'us', 'de', 'jp-tk')
+just-scrape search <query> --time-range <range>               # past_hour | past_24_hours | past_week | past_month | past_year
+just-scrape search <query> --format <markdown|html>           # Result format (default markdown)
 just-scrape search <query> --headers <json>
 ```
 
@@ -145,6 +148,9 @@ just-scrape search <query> --headers <json>
 # Research a topic across multiple sources
 just-scrape search "What are the best Python web frameworks in 2025?" --num-results 10
 
+# Recent news only, scoped to Germany
+just-scrape search "EU AI act latest news" --time-range past_week --location-geo-code de
+
 # Structured output with schema
 just-scrape search "Top 5 cloud providers pricing" \
   --schema '{"type":"object","properties":{"providers":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"free_tier":{"type":"string"}}}}}}'
@@ -152,33 +158,43 @@ just-scrape search "Top 5 cloud providers pricing" \
 
 ## Scrape
 
-Scrape content from a URL in various formats: markdown (default), html, screenshot, or branding. [docs](https://docs.scrapegraphai.com/api-reference/scrape)
+Scrape content from a URL in one or more formats. The v2 API supports **8 formats**: `markdown`, `html`, `screenshot`, `branding`, `links`, `images`, `summary`, `json`. [docs](https://docs.scrapegraphai.com/api-reference/scrape)
 
 ### Usage
 
 ```bash
-just-scrape scrape <url>                               # Markdown (default)
-just-scrape scrape <url> -f html                       # Raw HTML
-just-scrape scrape <url> -f screenshot                 # Screenshot
-just-scrape scrape <url> -f branding                   # Extract branding info
-just-scrape scrape <url> -m direct+stealth             # Anti-bot bypass
-just-scrape scrape <url> --country <iso>               # Geo-targeting
+just-scrape scrape <url>                                  # Markdown (default)
+just-scrape scrape <url> -f html                          # Raw HTML
+just-scrape scrape <url> -f screenshot                    # Page screenshot
+just-scrape scrape <url> -f branding                      # Branding (logos, colors, fonts)
+just-scrape scrape <url> -f links                         # Extracted links
+just-scrape scrape <url> -f images                        # Extracted images
+just-scrape scrape <url> -f summary                       # AI-generated page summary
+just-scrape scrape <url> -f json -p <prompt>              # Structured JSON via prompt
+just-scrape scrape <url> -f markdown,links,images         # Multi-format (comma-separated)
+just-scrape scrape <url> --html-mode reader               # normal (default), reader, or prune
+just-scrape scrape <url> --scrolls <n>                    # Infinite scroll (0-100)
+just-scrape scrape <url> -m direct+stealth                # Anti-bot bypass
+just-scrape scrape <url> --country <iso>                  # Geo-targeting
 ```
 
 ### Examples
 
 ```bash
-# Get markdown of a page
+# Markdown of a page
 just-scrape scrape https://example.com
 
-# Get raw HTML
-just-scrape scrape https://example.com -f html
+# Raw HTML with reader-mode extraction
+just-scrape scrape https://blog.example.com -f html --html-mode reader
+
+# Multi-format: markdown + links + images in a single call
+just-scrape scrape https://example.com -f markdown,links,images
+
+# Structured JSON output with a prompt
+just-scrape scrape https://store.example.com -f json -p "Extract product name and price"
 
 # Scrape with anti-bot bypass and geo-targeting
 just-scrape scrape https://store.example.com -m direct+stealth --country DE
-
-# Extract branding info (logos, colors, fonts)
-just-scrape scrape https://example.com -f branding
 ```
 
 ## Markdownify
@@ -218,6 +234,7 @@ just-scrape crawl <url> --max-pages <n>                # Max pages (default 50)
 just-scrape crawl <url> --max-depth <n>                # Crawl depth (default 2)
 just-scrape crawl <url> --max-links-per-page <n>       # Links per page (default 10)
 just-scrape crawl <url> --allow-external               # Allow external domains
+just-scrape crawl <url> -f html                        # Page format (default markdown)
 just-scrape crawl <url> -m direct+stealth              # Anti-bot bypass
 ```
 
@@ -283,8 +300,9 @@ Commands have been renamed to match the v2 API:
 | `smart-scraper` | `extract` | Renamed |
 | `search-scraper` | `search` | Renamed |
 | `markdownify` | `markdownify` | Now wraps `scrape --format markdown` |
-| `scrape` | `scrape` | Gains `--format` flag (markdown, html, screenshot, branding) |
-| `crawl` | `crawl` | New options: `--max-depth`, `--max-links-per-page`, `--allow-external` |
+| `scrape` | `scrape` | Gains `--format` (markdown, html, screenshot, branding, links, images, summary, json), multi-format via comma, `--html-mode`, `--scrolls`, `--prompt`, `--schema` |
+| `crawl` | `crawl` | New options: `--max-depth`, `--max-links-per-page`, `--allow-external`, `--format` |
+| `search` | `search` | New options: `--location-geo-code`, `--time-range`, `--format` |
 | `--stealth` flag | `--mode direct+stealth` | Fetch mode enum replaces boolean (`auto`, `fast`, `js`, `direct+stealth`, `js+stealth`) |
 | `agentic-scraper` | — | Removed from API |
 | `generate-schema` | — | Removed from API |

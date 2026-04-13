@@ -23,6 +23,19 @@ export default defineCommand({
 			description: "Number of websites to scrape (1-20, default 3)",
 		},
 		schema: { type: "string", description: "Output JSON schema (as JSON string)" },
+		"location-geo-code": {
+			type: "string",
+			description: "Geo-location code for search (e.g. 'us', 'de', 'jp-tk')",
+		},
+		"time-range": {
+			type: "string",
+			description:
+				"Filter results by recency: past_hour, past_24_hours, past_week, past_month, past_year",
+		},
+		format: {
+			type: "string",
+			description: "Result format: markdown (default) or html",
+		},
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -35,6 +48,9 @@ export default defineCommand({
 		if (args["num-results"]) searchOptions.numResults = Number(args["num-results"]);
 		if (args.schema) searchOptions.schema = JSON.parse(args.schema);
 		if (args.prompt) searchOptions.prompt = args.prompt;
+		if (args["location-geo-code"]) searchOptions.locationGeoCode = args["location-geo-code"];
+		if (args["time-range"]) searchOptions.timeRange = args["time-range"];
+		if (args.format) searchOptions.format = args.format;
 		if (args.headers) searchOptions.fetchConfig = { headers: JSON.parse(args.headers) };
 
 		out.start("Searching");

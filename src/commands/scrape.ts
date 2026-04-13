@@ -2,10 +2,23 @@ import { defineCommand } from "citty";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
+const FORMATS = [
+	"markdown",
+	"html",
+	"screenshot",
+	"branding",
+	"links",
+	"images",
+	"summary",
+	"json",
+] as const;
+type Format = (typeof FORMATS)[number];
+
 export default defineCommand({
 	meta: {
 		name: "scrape",
-		description: "Scrape content from a URL (markdown, html, screenshot, or branding)",
+		description:
+			"Scrape content from a URL (markdown, html, screenshot, branding, links, images, summary, json)",
 	},
 	args: {
 		url: {
@@ -16,9 +29,27 @@ export default defineCommand({
 		format: {
 			type: "string",
 			alias: "f",
-			description: "Output format: markdown (default), html, screenshot, branding",
+			description: `Output format: ${FORMATS.join(", ")} (default: markdown). Comma-separate for multi-format output.`,
 		},
-		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
+		prompt: {
+			type: "string",
+			alias: "p",
+			description: "Prompt for json format (required when --format includes json)",
+		},
+		schema: {
+			type: "string",
+			description: "Schema for json format (JSON string)",
+		},
+		mode: {
+			type: "string",
+			alias: "m",
+			description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth",
+		},
+		"html-mode": {
+			type: "string",
+			description: "HTML/markdown extraction mode: normal (default), reader, prune",
+		},
+		scrolls: { type: "string", description: "Number of infinite scrolls (0-100)" },
 		country: { type: "string", description: "ISO country code for geo-targeting" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -29,10 +60,50 @@ export default defineCommand({
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
+		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
 		if (args.country) fetchConfig.country = args.country;
 
-		const scrapeOptions: Record<string, unknown> = {};
-		if (args.format) scrapeOptions.format = args.format;
+		const requestedFormats = (args.format ?? "markdown")
+			.split(",")
+			.map((f) => f.trim())
+			.filter(Boolean) as Format[];
+		const htmlMode = (args["html-mode"] as "normal" | "reader" | "prune" | undefined) ?? "normal";
+
+		const formats = requestedFormats.map((f) => {
+			switch (f) {
+				case "markdown":
+					return { type: "markdown" as const, mode: htmlMode };
+				case "html":
+					return { type: "html" as const, mode: htmlMode };
+				case "screenshot":
+					return { type: "screenshot" as const };
+				case "branding":
+					return { type: "branding" as const };
+				case "links":
+					return { type: "links" as const };
+				case "images":
+					return { type: "images" as const };
+				case "summary":
+					return { type: "summary" as const };
+				case "json": {
+					if (!args.prompt) {
+						out.error("--prompt is required when --format includes json");
+						return { type: "json" as const };
+					}
+					return {
+						type: "json" as const,
+						prompt: args.prompt,
+						schema: args.schema ? JSON.parse(args.schema) : undefined,
+						mode: htmlMode,
+					};
+				}
+				default:
+					out.error(`Unknown format: ${f}. Valid: ${FORMATS.join(", ")}`);
+					return { type: "markdown" as const, mode: htmlMode };
+			}
+		});
+
+		const scrapeOptions: Record<string, unknown> = { formats };
 		if (Object.keys(fetchConfig).length > 0) scrapeOptions.fetchConfig = fetchConfig;
 
 		out.start("Scraping");
