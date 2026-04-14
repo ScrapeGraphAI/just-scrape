@@ -45,7 +45,8 @@ export default defineCommand({
 			.filter(Boolean);
 
 		const formats = requestedFormats.map((f) => {
-			if (f === "markdown" || f === "html") return { type: f as "markdown" | "html", mode: "normal" as const };
+			if (f === "markdown" || f === "html")
+				return { type: f as "markdown" | "html", mode: "normal" as const };
 			return { type: f };
 		});
 

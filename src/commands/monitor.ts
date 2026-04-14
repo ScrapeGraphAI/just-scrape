@@ -8,7 +8,16 @@ import * as log from "../lib/log.js";
 const ACTIONS = ["create", "list", "get", "update", "delete", "pause", "resume"] as const;
 type Action = (typeof ACTIONS)[number];
 
-const FORMATS = ["markdown", "html", "screenshot", "branding", "links", "images", "summary", "json"] as const;
+const FORMATS = [
+	"markdown",
+	"html",
+	"screenshot",
+	"branding",
+	"links",
+	"images",
+	"summary",
+	"json",
+] as const;
 
 export default defineCommand({
 	meta: {
@@ -76,7 +85,8 @@ export default defineCommand({
 					.filter(Boolean);
 
 				const formats = requestedFormats.map((f) => {
-					if (f === "markdown" || f === "html") return { type: f as "markdown" | "html", mode: "normal" as const };
+					if (f === "markdown" || f === "html")
+						return { type: f as "markdown" | "html", mode: "normal" as const };
 					return { type: f };
 				});
 

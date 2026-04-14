@@ -1,15 +1,15 @@
 import { expect, test } from "bun:test";
-import { scrapegraphai } from "scrapegraph-js";
+import { crawl, extract, getCredits, history, monitor, scrape, search } from "scrapegraph-js";
 
-test("sdk v2 factory is callable and exposes expected methods", () => {
-	expect(typeof scrapegraphai).toBe("function");
-
-	const client = scrapegraphai({ apiKey: "sgai-test" });
-	expect(typeof client.scrape).toBe("function");
-	expect(typeof client.extract).toBe("function");
-	expect(typeof client.search).toBe("function");
-	expect(typeof client.credits).toBe("function");
-	expect(typeof client.history).toBe("function");
-	expect(typeof client.crawl.start).toBe("function");
-	expect(typeof client.crawl.status).toBe("function");
+test("sdk v2 exports expected functions", () => {
+	expect(typeof scrape).toBe("function");
+	expect(typeof extract).toBe("function");
+	expect(typeof search).toBe("function");
+	expect(typeof getCredits).toBe("function");
+	expect(typeof history.list).toBe("function");
+	expect(typeof history.get).toBe("function");
+	expect(typeof crawl.start).toBe("function");
+	expect(typeof crawl.get).toBe("function");
+	expect(typeof monitor.create).toBe("function");
+	expect(typeof monitor.list).toBe("function");
 });

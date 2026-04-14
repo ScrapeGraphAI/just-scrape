@@ -25,11 +25,7 @@ function label(row: HistoryRow): string {
 	const urlShort = url.length > 50 ? `${url.slice(0, 49)}...` : url;
 
 	const color =
-		status === "completed"
-			? chalk.green
-			: status === "failed"
-				? chalk.red
-				: chalk.yellow;
+		status === "completed" ? chalk.green : status === "failed" ? chalk.red : chalk.yellow;
 
 	return `${chalk.dim(short)}  ${color(status)}  ${urlShort}`;
 }
