@@ -36,6 +36,10 @@ export default defineCommand({
 			type: "string",
 			description: "Result format: markdown (default) or html",
 		},
+		nationality: {
+			type: "string",
+			description: "2-letter ISO nationality code for search personalization",
+		},
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -51,6 +55,7 @@ export default defineCommand({
 		if (args["location-geo-code"]) searchOptions.locationGeoCode = args["location-geo-code"];
 		if (args["time-range"]) searchOptions.timeRange = args["time-range"];
 		if (args.format) searchOptions.format = args.format;
+		if (args.nationality) searchOptions.nationality = args.nationality;
 		if (args.headers) searchOptions.fetchConfig = { headers: JSON.parse(args.headers) };
 
 		out.start("Searching");

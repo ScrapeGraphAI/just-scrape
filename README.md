@@ -104,7 +104,7 @@ Extract structured data from any URL using AI (replaces `smart-scraper`). [docs]
 just-scrape extract <url> -p <prompt>                # Extract data with AI
 just-scrape extract <url> -p <prompt> --schema <json> # Enforce output schema
 just-scrape extract <url> -p <prompt> --scrolls <n>   # Infinite scroll (0-100)
-just-scrape extract <url> -p <prompt> --mode direct+stealth  # Anti-bot bypass
+just-scrape extract <url> -p <prompt> --mode js --stealth    # Anti-bot bypass
 just-scrape extract <url> -p <prompt> --cookies <json> --headers <json>
 just-scrape extract <url> -p <prompt> --country <iso> # Geo-targeting
 ```
@@ -120,9 +120,9 @@ just-scrape extract https://news.example.com -p "Get all article headlines and d
   --schema '{"type":"object","properties":{"articles":{"type":"array","items":{"type":"object","properties":{"title":{"type":"string"},"date":{"type":"string"}}}}}}' \
   --scrolls 5
 
-# Scrape a JS-heavy SPA behind anti-bot protection
+# Scrape a JS-heavy SPA with stealth mode
 just-scrape extract https://app.example.com/dashboard -p "Extract user stats" \
-  --mode js+stealth
+  --mode js --stealth
 ```
 
 ## Search
@@ -139,6 +139,7 @@ just-scrape search <query> --schema <json>                    # Enforce output s
 just-scrape search <query> --location-geo-code <code>         # Geo-target search (e.g. 'us', 'de', 'jp-tk')
 just-scrape search <query> --time-range <range>               # past_hour | past_24_hours | past_week | past_month | past_year
 just-scrape search <query> --format <markdown|html>           # Result format (default markdown)
+just-scrape search <query> --nationality <iso>               # 2-letter ISO nationality code
 just-scrape search <query> --headers <json>
 ```
 
@@ -174,7 +175,7 @@ just-scrape scrape <url> -f json -p <prompt>              # Structured JSON via 
 just-scrape scrape <url> -f markdown,links,images         # Multi-format (comma-separated)
 just-scrape scrape <url> --html-mode reader               # normal (default), reader, or prune
 just-scrape scrape <url> --scrolls <n>                    # Infinite scroll (0-100)
-just-scrape scrape <url> -m direct+stealth                # Anti-bot bypass
+just-scrape scrape <url> -m js --stealth                # Anti-bot bypass
 just-scrape scrape <url> --country <iso>                  # Geo-targeting
 ```
 
@@ -193,8 +194,8 @@ just-scrape scrape https://example.com -f markdown,links,images
 # Structured JSON output with a prompt
 just-scrape scrape https://store.example.com -f json -p "Extract product name and price"
 
-# Scrape with anti-bot bypass and geo-targeting
-just-scrape scrape https://store.example.com -m direct+stealth --country DE
+# Scrape with stealth mode and geo-targeting
+just-scrape scrape https://store.example.com --stealth --country DE
 ```
 
 ## Markdownify
@@ -205,7 +206,7 @@ Convert any webpage to clean markdown (convenience wrapper for `scrape --format 
 
 ```bash
 just-scrape markdownify <url>                          # Convert to markdown
-just-scrape markdownify <url> -m direct+stealth        # Anti-bot bypass
+just-scrape markdownify <url> -m js --stealth        # Anti-bot bypass
 just-scrape markdownify <url> --headers <json>         # Custom headers
 ```
 
@@ -216,7 +217,7 @@ just-scrape markdownify <url> --headers <json>         # Custom headers
 just-scrape markdownify https://blog.example.com/my-article
 
 # Convert a JS-rendered page behind Cloudflare
-just-scrape markdownify https://protected.example.com -m js+stealth
+just-scrape markdownify https://protected.example.com -m js --stealth
 
 # Pipe markdown to a file
 just-scrape markdownify https://docs.example.com/api --json | jq -r '.markdown' > api-docs.md
@@ -235,7 +236,7 @@ just-scrape crawl <url> --max-depth <n>                # Crawl depth (default 2)
 just-scrape crawl <url> --max-links-per-page <n>       # Links per page (default 10)
 just-scrape crawl <url> --allow-external               # Allow external domains
 just-scrape crawl <url> -f html                        # Page format (default markdown)
-just-scrape crawl <url> -m direct+stealth              # Anti-bot bypass
+just-scrape crawl <url> -m js --stealth              # Anti-bot bypass
 ```
 
 ### Examples
@@ -303,7 +304,7 @@ Commands have been renamed to match the v2 API:
 | `scrape` | `scrape` | Gains `--format` (markdown, html, screenshot, branding, links, images, summary, json), multi-format via comma, `--html-mode`, `--scrolls`, `--prompt`, `--schema` |
 | `crawl` | `crawl` | New options: `--max-depth`, `--max-links-per-page`, `--allow-external`, `--format` |
 | `search` | `search` | New options: `--location-geo-code`, `--time-range`, `--format` |
-| `--stealth` flag | `--mode direct+stealth` | Fetch mode enum replaces boolean (`auto`, `fast`, `js`, `direct+stealth`, `js+stealth`) |
+| `--stealth` flag | `--stealth` | Separate boolean flag; fetch mode is now `auto`, `fast`, or `js` |
 | `agentic-scraper` | — | Removed from API |
 | `generate-schema` | — | Removed from API |
 | `sitemap` | — | Removed from API |

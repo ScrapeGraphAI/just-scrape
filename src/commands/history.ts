@@ -64,8 +64,17 @@ export default defineCommand({
 			const t0 = performance.now();
 			const r = await sgai.history({ service, page: pg, limit });
 			const ms = Math.round(performance.now() - t0);
-			const d = r.data as { data?: Record<string, unknown>[]; requests?: Record<string, unknown>[]; next_key?: string; total?: number };
-			return { rows: d.data ?? d.requests ?? [], hasMore: !!d.next_key || (d.total != null && pg * limit < d.total), ms };
+			const d = r.data as {
+				data?: Record<string, unknown>[];
+				requests?: Record<string, unknown>[];
+				next_key?: string;
+				total?: number;
+			};
+			return {
+				rows: d.data ?? d.requests ?? [],
+				hasMore: !!d.next_key || (d.total != null && pg * limit < d.total),
+				ms,
+			};
 		};
 
 		if (quiet || requestId) {

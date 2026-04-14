@@ -28,8 +28,9 @@ export default defineCommand({
 		mode: {
 			type: "string",
 			alias: "m",
-			description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth",
+			description: "Fetch mode: auto (default), fast, js",
 		},
+		stealth: { type: "boolean", description: "Enable stealth mode" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
@@ -44,7 +45,10 @@ export default defineCommand({
 			crawlOptions.maxLinksPerPage = Number(args["max-links-per-page"]);
 		if (args["allow-external"]) crawlOptions.allowExternal = true;
 		if (args.format) crawlOptions.format = args.format;
-		if (args.mode) crawlOptions.fetchConfig = { mode: args.mode };
+		const fetchConfig: Record<string, unknown> = {};
+		if (args.mode) fetchConfig.mode = args.mode;
+		if (args.stealth) fetchConfig.stealth = true;
+		if (Object.keys(fetchConfig).length > 0) crawlOptions.fetchConfig = fetchConfig;
 
 		out.start("Crawling");
 		const t0 = performance.now();

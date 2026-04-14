@@ -13,7 +13,8 @@ export default defineCommand({
 			description: "Website URL to convert",
 			required: true,
 		},
-		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth" },
+		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js" },
+		stealth: { type: "boolean", description: "Enable stealth mode" },
 		headers: { type: "string", description: "Custom headers as JSON object string" },
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
@@ -24,6 +25,7 @@ export default defineCommand({
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
+		if (args.stealth) fetchConfig.stealth = true;
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 
 		const scrapeOptions: Record<string, unknown> = { format: "markdown" };

@@ -43,8 +43,9 @@ export default defineCommand({
 		mode: {
 			type: "string",
 			alias: "m",
-			description: "Fetch mode: auto (default), fast, js, direct+stealth, js+stealth",
+			description: "Fetch mode: auto (default), fast, js",
 		},
+		stealth: { type: "boolean", description: "Enable stealth mode" },
 		"html-mode": {
 			type: "string",
 			description: "HTML/markdown extraction mode: normal (default), reader, prune",
@@ -60,6 +61,7 @@ export default defineCommand({
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
+		if (args.stealth) fetchConfig.stealth = true;
 		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
 		if (args.country) fetchConfig.country = args.country;
 

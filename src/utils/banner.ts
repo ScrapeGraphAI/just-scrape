@@ -31,7 +31,9 @@ export function showBanner() {
 	console.log(chalk.hex(BANNER_COLOR)(TAGLINE));
 	console.log(chalk.hex(BANNER_COLOR)(`v${getVersion()}`));
 	if (process.env.SGAI_API_URL || process.env.JUST_SCRAPE_API_URL) {
-		console.log(chalk.yellow(`→ Custom API: ${process.env.SGAI_API_URL || process.env.JUST_SCRAPE_API_URL}`));
+		console.log(
+			chalk.yellow(`→ Custom API: ${process.env.SGAI_API_URL || process.env.JUST_SCRAPE_API_URL}`),
+		);
 	}
 	console.log();
 }
