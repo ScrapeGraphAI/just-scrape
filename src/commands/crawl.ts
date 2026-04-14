@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import type { ApiCrawlOptions } from "scrapegraph-js";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
@@ -38,7 +39,7 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/api-reference/crawl");
 		const sgai = await createClient(!!args.json);
 
-		const crawlOptions: Record<string, unknown> = {};
+		const crawlOptions: ApiCrawlOptions = {};
 		if (args["max-pages"]) crawlOptions.maxPages = Number(args["max-pages"]);
 		if (args["max-depth"]) crawlOptions.maxDepth = Number(args["max-depth"]);
 		if (args["max-links-per-page"])
@@ -53,7 +54,7 @@ export default defineCommand({
 		out.start("Crawling");
 		const t0 = performance.now();
 		try {
-			const job = await sgai.crawl.start(args.url, crawlOptions as any);
+			const job = await sgai.crawl.start(args.url, crawlOptions);
 			const jobId = (job.data as { id: string }).id;
 
 			if (!jobId) {

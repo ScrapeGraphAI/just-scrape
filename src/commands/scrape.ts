@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import type { ApiScrapeOptions } from "scrapegraph-js";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
@@ -105,13 +106,13 @@ export default defineCommand({
 			}
 		});
 
-		const scrapeOptions: Record<string, unknown> = { formats };
+		const scrapeOptions: ApiScrapeOptions = { formats };
 		if (Object.keys(fetchConfig).length > 0) scrapeOptions.fetchConfig = fetchConfig;
 
 		out.start("Scraping");
 		const t0 = performance.now();
 		try {
-			const result = await sgai.scrape(args.url, scrapeOptions as any);
+			const result = await sgai.scrape(args.url, scrapeOptions);
 			out.stop(Math.round(performance.now() - t0));
 			out.result(result.data);
 		} catch (err) {
