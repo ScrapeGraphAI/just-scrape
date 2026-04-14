@@ -136,7 +136,7 @@ just-scrape search <query>                                    # AI-powered web s
 just-scrape search <query> --num-results <n>                  # Sources to scrape (1-20, default 3)
 just-scrape search <query> -p <prompt>                        # Extraction prompt for results
 just-scrape search <query> --schema <json>                    # Enforce output schema
-just-scrape search <query> --location-geo-code <code>         # Geo-target search (e.g. 'us', 'de', 'jp-tk')
+just-scrape search <query> --country <code>                    # Geo-target search (e.g. 'us', 'de', 'jp')
 just-scrape search <query> --time-range <range>               # past_hour | past_24_hours | past_week | past_month | past_year
 just-scrape search <query> --format <markdown|html>           # Result format (default markdown)
 just-scrape search <query> --headers <json>
@@ -149,7 +149,7 @@ just-scrape search <query> --headers <json>
 just-scrape search "What are the best Python web frameworks in 2025?" --num-results 10
 
 # Recent news only, scoped to Germany
-just-scrape search "EU AI act latest news" --time-range past_week --location-geo-code de
+just-scrape search "EU AI act latest news" --time-range past_week --country de
 
 # Structured output with schema
 just-scrape search "Top 5 cloud providers pricing" \
@@ -302,7 +302,7 @@ Commands have been renamed to match the v2 API:
 | `markdownify` | `markdownify` | Now wraps `scrape --format markdown` |
 | `scrape` | `scrape` | Gains `--format` (markdown, html, screenshot, branding, links, images, summary, json), multi-format via comma, `--html-mode`, `--scrolls`, `--prompt`, `--schema` |
 | `crawl` | `crawl` | New options: `--max-depth`, `--max-links-per-page`, `--allow-external`, `--format` |
-| `search` | `search` | New options: `--location-geo-code`, `--time-range`, `--format` |
+| `search` | `search` | New options: `--country`, `--time-range`, `--format` |
 | `--stealth` flag | `--stealth` | Separate boolean flag; fetch mode is now `auto`, `fast`, or `js` |
 | `agentic-scraper` | — | Removed from API |
 | `generate-schema` | — | Removed from API |
