@@ -139,7 +139,6 @@ just-scrape search <query> --schema <json>                    # Enforce output s
 just-scrape search <query> --location-geo-code <code>         # Geo-target search (e.g. 'us', 'de', 'jp-tk')
 just-scrape search <query> --time-range <range>               # past_hour | past_24_hours | past_week | past_month | past_year
 just-scrape search <query> --format <markdown|html>           # Result format (default markdown)
-just-scrape search <query> --nationality <iso>               # 2-letter ISO nationality code
 just-scrape search <query> --headers <json>
 ```
 
