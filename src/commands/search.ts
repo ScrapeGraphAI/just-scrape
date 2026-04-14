@@ -1,5 +1,6 @@
 import { defineCommand } from "citty";
-import { createClient } from "../lib/client.js";
+import { search } from "scrapegraph-js";
+import { getApiKey } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
 export default defineCommand({
@@ -42,25 +43,24 @@ export default defineCommand({
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
 		out.docs("https://docs.scrapegraphai.com/api-reference/search");
-		const sgai = await createClient(!!args.json);
+		const apiKey = await getApiKey(!!args.json);
 
-		const searchOptions: Record<string, unknown> = {};
-		if (args["num-results"]) searchOptions.numResults = Number(args["num-results"]);
-		if (args.schema) searchOptions.schema = JSON.parse(args.schema);
-		if (args.prompt) searchOptions.prompt = args.prompt;
-		if (args.country) searchOptions.country = args.country;
-		if (args["time-range"]) searchOptions.timeRange = args["time-range"];
-		if (args.format) searchOptions.format = args.format;
-		if (args.headers) searchOptions.fetchConfig = { headers: JSON.parse(args.headers) };
+		const params: Record<string, unknown> = { query: args.query };
+		if (args["num-results"]) params.numResults = Number(args["num-results"]);
+		if (args.schema) params.schema = JSON.parse(args.schema);
+		if (args.prompt) params.prompt = args.prompt;
+		if (args.country) params.country = args.country;
+		if (args["time-range"]) params.timeRange = args["time-range"];
+		if (args.format) params.format = args.format;
+		if (args.headers) params.fetchConfig = { headers: JSON.parse(args.headers) };
 
 		out.start("Searching");
-		const t0 = performance.now();
 		try {
-			const result = await sgai.search(args.query, searchOptions as any);
-			out.stop(Math.round(performance.now() - t0));
+			const result = await search(apiKey, params as any);
+			out.stop(result.elapsedMs);
 			out.result(result.data);
 		} catch (err) {
-			out.stop(Math.round(performance.now() - t0));
+			out.stop(0);
 			out.error(err instanceof Error ? err.message : String(err));
 		}
 	},

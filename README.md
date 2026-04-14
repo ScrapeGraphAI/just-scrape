@@ -5,7 +5,7 @@ Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com) 💜
 
 ![Demo Video](/assets/demo.gif)
 
-Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, and crawling. Uses the **v2 API**.
+Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com) — AI-powered web scraping, data extraction, search, crawling, and monitoring. Uses the **v2 API**.
 
 ## Project Structure
 
@@ -14,7 +14,7 @@ just-scrape/
 ├── src/
 │   ├── cli.ts                       # Entry point, citty main command + subcommands
 │   ├── lib/
-│   │   ├── client.ts                # ScrapeGraphAI v2 client factory
+│   │   ├── client.ts                # API key resolver
 │   │   ├── env.ts                   # Env config (API key, JUST_SCRAPE_* → SGAI_* bridge)
 │   │   ├── folders.ts               # API key resolution + interactive prompt
 │   │   └── log.ts                   # Logger factory + syntax-highlighted JSON output
@@ -24,6 +24,7 @@ just-scrape/
 │   │   ├── scrape.ts
 │   │   ├── markdownify.ts
 │   │   ├── crawl.ts
+│   │   ├── monitor.ts
 │   │   ├── history.ts
 │   │   └── credits.ts
 │   └── utils/
@@ -87,22 +88,23 @@ Legacy variables (`JUST_SCRAPE_API_URL`, `JUST_SCRAPE_TIMEOUT_S`, `JUST_SCRAPE_D
 All commands support `--json` for machine-readable output. When set, banner, spinners, and interactive prompts are suppressed — only minified JSON on stdout (saves tokens when piped to AI agents).
 
 ```bash
-just-scrape credits --json | jq '.remainingCredits'
+just-scrape credits --json | jq '.remaining'
 just-scrape extract https://example.com -p "Extract data" --json > result.json
-just-scrape history extract --json | jq '.[].status'
+just-scrape history scrape --json | jq '.[].status'
 ```
 
 ---
 
 ## Extract
 
-Extract structured data from any URL using AI (replaces `smart-scraper`). [docs](https://docs.scrapegraphai.com/api-reference/extract)
+Extract structured data from any URL using AI. [docs](https://docs.scrapegraphai.com/api-reference/extract)
 
 ### Usage
 
 ```bash
 just-scrape extract <url> -p <prompt>                # Extract data with AI
 just-scrape extract <url> -p <prompt> --schema <json> # Enforce output schema
+just-scrape extract <url> -p <prompt> --mode <mode>   # HTML mode: normal, reader, prune
 just-scrape extract <url> -p <prompt> --scrolls <n>   # Infinite scroll (0-100)
 just-scrape extract <url> -p <prompt> --mode js --stealth    # Anti-bot bypass
 just-scrape extract <url> -p <prompt> --cookies <json> --headers <json>
@@ -122,12 +124,12 @@ just-scrape extract https://news.example.com -p "Get all article headlines and d
 
 # Scrape a JS-heavy SPA with stealth mode
 just-scrape extract https://app.example.com/dashboard -p "Extract user stats" \
-  --mode js --stealth
+  --stealth
 ```
 
 ## Search
 
-Search the web and extract structured data from results (replaces `search-scraper`). [docs](https://docs.scrapegraphai.com/api-reference/search)
+Search the web and extract structured data from results. [docs](https://docs.scrapegraphai.com/api-reference/search)
 
 ### Usage
 
@@ -135,8 +137,8 @@ Search the web and extract structured data from results (replaces `search-scrape
 just-scrape search <query>                                    # AI-powered web search
 just-scrape search <query> --num-results <n>                  # Sources to scrape (1-20, default 3)
 just-scrape search <query> -p <prompt>                        # Extraction prompt for results
-just-scrape search <query> --schema <json>                    # Enforce output schema
-just-scrape search <query> --country <code>                    # Geo-target search (e.g. 'us', 'de', 'jp')
+just-scrape search <query> --schema <json>                    # Enforce output schema (requires -p)
+just-scrape search <query> --country <code>                   # Geo-target search (e.g. 'us', 'de', 'jp')
 just-scrape search <query> --time-range <range>               # past_hour | past_24_hours | past_week | past_month | past_year
 just-scrape search <query> --format <markdown|html>           # Result format (default markdown)
 just-scrape search <query> --headers <json>
@@ -153,6 +155,7 @@ just-scrape search "EU AI act latest news" --time-range past_week --country de
 
 # Structured output with schema
 just-scrape search "Top 5 cloud providers pricing" \
+  -p "Extract provider name and free tier details" \
   --schema '{"type":"object","properties":{"providers":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"free_tier":{"type":"string"}}}}}}'
 ```
 
@@ -219,12 +222,12 @@ just-scrape markdownify https://blog.example.com/my-article
 just-scrape markdownify https://protected.example.com -m js --stealth
 
 # Pipe markdown to a file
-just-scrape markdownify https://docs.example.com/api --json | jq -r '.markdown' > api-docs.md
+just-scrape markdownify https://docs.example.com/api --json | jq -r '.results.markdown.data[0]' > api-docs.md
 ```
 
 ## Crawl
 
-Crawl multiple pages. The CLI starts the crawl and polls until completion. [docs](https://docs.scrapegraphai.com/api-reference/crawl)
+Crawl multiple pages. The CLI starts the crawl and polls until completion. Supports the same format options as scrape. [docs](https://docs.scrapegraphai.com/api-reference/crawl)
 
 ### Usage
 
@@ -235,6 +238,7 @@ just-scrape crawl <url> --max-depth <n>                # Crawl depth (default 2)
 just-scrape crawl <url> --max-links-per-page <n>       # Links per page (default 10)
 just-scrape crawl <url> --allow-external               # Allow external domains
 just-scrape crawl <url> -f html                        # Page format (default markdown)
+just-scrape crawl <url> -f markdown,links              # Multi-format (comma-separated)
 just-scrape crawl <url> -m js --stealth              # Anti-bot bypass
 ```
 
@@ -251,21 +255,63 @@ just-scrape crawl https://example.com --max-pages 50
 just-scrape crawl https://example.com --json --max-pages 10
 ```
 
-## History
+## Monitor
 
-Browse request history for any service. Interactive by default — arrow keys to navigate, select to view details, "Load more" for pagination.
+Create and manage page-change monitors. Monitors periodically scrape a URL and detect changes. [docs](https://docs.scrapegraphai.com/api-reference/monitor)
 
 ### Usage
 
 ```bash
-just-scrape history <service>                          # Interactive browser
-just-scrape history <service> <request-id>             # Fetch specific request
-just-scrape history <service> --page <n>               # Start from page (default 1)
-just-scrape history <service> --page-size <n>          # Results per page (default 20, max 100)
-just-scrape history <service> --json                   # Raw JSON (pipeable)
+just-scrape monitor create --url <url> --interval <interval>   # Create a monitor
+just-scrape monitor create --url <url> --interval 1h --name "My Monitor"
+just-scrape monitor create --url <url> --interval 30m --webhook-url <url>
+just-scrape monitor create --url <url> --interval 1d -f markdown,screenshot
+just-scrape monitor list                                       # List all monitors
+just-scrape monitor get --id <id>                              # Get monitor details
+just-scrape monitor update --id <id> --interval 2h             # Update interval
+just-scrape monitor pause --id <id>                            # Pause a monitor
+just-scrape monitor resume --id <id>                           # Resume a paused monitor
+just-scrape monitor delete --id <id>                           # Delete a monitor
 ```
 
-Services: `scrape`, `extract`, `search`, `monitor`, `crawl`
+### Examples
+
+```bash
+# Monitor a pricing page every hour
+just-scrape monitor create --url https://store.example.com/pricing --interval 1h
+
+# Monitor with webhook notification
+just-scrape monitor create --url https://example.com \
+  --interval 30m --webhook-url https://hooks.example.com/notify
+
+# Monitor markdown + screenshot changes daily
+just-scrape monitor create --url https://example.com \
+  --interval 1d -f markdown,screenshot --name "Daily check"
+
+# List all monitors
+just-scrape monitor list
+
+# Pause and resume
+just-scrape monitor pause --id abc123
+just-scrape monitor resume --id abc123
+```
+
+## History
+
+Browse request history. Interactive by default — arrow keys to navigate, select to view details, "Load more" for pagination. Service filter is optional.
+
+### Usage
+
+```bash
+just-scrape history                                   # All history (interactive)
+just-scrape history <service>                         # Filter by service
+just-scrape history <service> <request-id>            # Fetch specific request by ID
+just-scrape history --page <n>                        # Start from page (default 1)
+just-scrape history --page-size <n>                   # Results per page (default 20, max 100)
+just-scrape history --json                            # Raw JSON (pipeable)
+```
+
+Services: `scrape`, `extract`, `schema`, `search`, `monitor`, `crawl`
 
 ### Examples
 
@@ -274,10 +320,10 @@ Services: `scrape`, `extract`, `search`, `monitor`, `crawl`
 just-scrape history extract
 
 # Jump to a specific request by ID
-just-scrape history extract abc123-def456-7890
+just-scrape history scrape abc123-def456-7890
 
-# Export crawl history as JSON
-just-scrape history crawl --json --page-size 100 | jq '.[].status'
+# Export all history as JSON
+just-scrape history --json --page-size 100 | jq '.[].status'
 ```
 
 ## Credits
@@ -286,7 +332,7 @@ Check your credit balance.
 
 ```bash
 just-scrape credits
-just-scrape credits --json | jq '.remainingCredits'
+just-scrape credits --json | jq '.remaining'
 ```
 
 ---
@@ -301,11 +347,12 @@ Commands have been renamed to match the v2 API:
 | `search-scraper` | `search` | Renamed |
 | `markdownify` | `markdownify` | Now wraps `scrape --format markdown` |
 | `scrape` | `scrape` | Gains `--format` (markdown, html, screenshot, branding, links, images, summary, json), multi-format via comma, `--html-mode`, `--scrolls`, `--prompt`, `--schema` |
-| `crawl` | `crawl` | New options: `--max-depth`, `--max-links-per-page`, `--allow-external`, `--format` |
+| `crawl` | `crawl` | Now uses `formats` array like scrape, supports multi-format |
 | `search` | `search` | New options: `--country`, `--time-range`, `--format` |
+| — | `monitor` | **New**: create, list, get, update, delete, pause, resume page-change monitors |
 | `--stealth` flag | `--stealth` | Separate boolean flag; fetch mode is now `auto`, `fast`, or `js` |
 | `agentic-scraper` | — | Removed from API |
-| `generate-schema` | — | Removed from API |
+| `generate-schema` | — | Removed from CLI (still available in SDK) |
 | `sitemap` | — | Removed from API |
 | `validate` | — | Removed from API |
 

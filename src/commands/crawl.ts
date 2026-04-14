@@ -1,5 +1,6 @@
 import { defineCommand } from "citty";
-import { createClient } from "../lib/client.js";
+import { crawl } from "scrapegraph-js";
+import { getApiKey } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
 const POLL_INTERVAL_MS = 3000;
@@ -23,7 +24,7 @@ export default defineCommand({
 			type: "string",
 			alias: "f",
 			description:
-				"Page format: markdown (default), html, screenshot, branding, links, images, summary",
+				"Page format: markdown (default), html, screenshot, branding, links, images, summary. Comma-separate for multi-format.",
 		},
 		mode: {
 			type: "string",
@@ -36,51 +37,58 @@ export default defineCommand({
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
 		out.docs("https://docs.scrapegraphai.com/api-reference/crawl");
-		const sgai = await createClient(!!args.json);
+		const apiKey = await getApiKey(!!args.json);
 
-		const crawlOptions: Record<string, unknown> = {};
-		if (args["max-pages"]) crawlOptions.maxPages = Number(args["max-pages"]);
-		if (args["max-depth"]) crawlOptions.maxDepth = Number(args["max-depth"]);
-		if (args["max-links-per-page"])
-			crawlOptions.maxLinksPerPage = Number(args["max-links-per-page"]);
-		if (args["allow-external"]) crawlOptions.allowExternal = true;
-		if (args.format) crawlOptions.format = args.format;
+		const requestedFormats = (args.format ?? "markdown")
+			.split(",")
+			.map((f) => f.trim())
+			.filter(Boolean);
+
+		const formats = requestedFormats.map((f) => {
+			if (f === "markdown" || f === "html") return { type: f as "markdown" | "html", mode: "normal" as const };
+			return { type: f };
+		});
+
+		const params: Record<string, unknown> = { url: args.url, formats };
+		if (args["max-pages"]) params.maxPages = Number(args["max-pages"]);
+		if (args["max-depth"]) params.maxDepth = Number(args["max-depth"]);
+		if (args["max-links-per-page"]) params.maxLinksPerPage = Number(args["max-links-per-page"]);
+		if (args["allow-external"]) params.allowExternal = true;
+
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.stealth) fetchConfig.stealth = true;
-		if (Object.keys(fetchConfig).length > 0) crawlOptions.fetchConfig = fetchConfig;
+		if (Object.keys(fetchConfig).length > 0) params.fetchConfig = fetchConfig;
 
 		out.start("Crawling");
-		const t0 = performance.now();
 		try {
-			const job = await sgai.crawl.start(args.url, crawlOptions as any);
-			const jobId = (job.data as { id: string }).id;
+			const job = await crawl.start(apiKey, params as any);
+			const jobData = job.data as { id: string; status: string } | null;
 
-			if (!jobId) {
-				out.stop(Math.round(performance.now() - t0));
+			if (!jobData?.id) {
+				out.stop(job.elapsedMs);
 				out.result(job.data);
 				return;
 			}
 
-			// Poll until the crawl completes
 			while (true) {
 				await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-				const status = await sgai.crawl.status(jobId);
-				const statusData = status.data as { status: string; [key: string]: unknown };
-				out.poll(statusData.status);
+				const status = await crawl.get(apiKey, jobData.id);
+				const statusData = status.data as { status: string; [key: string]: unknown } | null;
+				out.poll(statusData?.status ?? "unknown");
 
 				if (
-					statusData.status === "completed" ||
-					statusData.status === "failed" ||
-					statusData.status === "cancelled"
+					statusData?.status === "completed" ||
+					statusData?.status === "failed" ||
+					statusData?.status === "deleted"
 				) {
-					out.stop(Math.round(performance.now() - t0));
+					out.stop(job.elapsedMs + status.elapsedMs);
 					out.result(status.data);
 					return;
 				}
 			}
 		} catch (err) {
-			out.stop(Math.round(performance.now() - t0));
+			out.stop(0);
 			out.error(err instanceof Error ? err.message : String(err));
 		}
 	},

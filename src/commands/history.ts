@@ -1,26 +1,31 @@
 import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
-import { createClient } from "../lib/client.js";
+import { history } from "scrapegraph-js";
+import { getApiKey } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
-const HISTORY_SERVICES = ["scrape", "extract", "search", "monitor", "crawl"] as const;
+const HISTORY_SERVICES = ["scrape", "extract", "schema", "search", "monitor", "crawl"] as const;
 const VALID = HISTORY_SERVICES.join(", ");
 const LOAD_MORE = "__load_more__";
 
-function getId(row: Record<string, unknown>): string {
-	return String(row.request_id ?? row.crawl_id ?? row.id ?? "unknown");
+type HistoryRow = Record<string, unknown>;
+
+function getId(row: HistoryRow): string {
+	return String(row.id ?? "unknown");
 }
 
-function label(row: Record<string, unknown>): string {
+function label(row: HistoryRow): string {
 	const id = getId(row);
-	const short = id.length > 12 ? `${id.slice(0, 12)}…` : id;
+	const short = id.length > 12 ? `${id.slice(0, 12)}...` : id;
 	const status = String(row.status ?? "—");
-	const url = String(row.website_url ?? row.url ?? row.user_prompt ?? "");
-	const urlShort = url.length > 50 ? `${url.slice(0, 49)}…` : url;
+
+	const params = row.params as Record<string, unknown> | undefined;
+	const url = String(params?.url ?? params?.query ?? "");
+	const urlShort = url.length > 50 ? `${url.slice(0, 49)}...` : url;
 
 	const color =
-		status === "completed" || status === "done"
+		status === "completed"
 			? chalk.green
 			: status === "failed"
 				? chalk.red
@@ -29,8 +34,8 @@ function label(row: Record<string, unknown>): string {
 	return `${chalk.dim(short)}  ${color(status)}  ${urlShort}`;
 }
 
-function hint(row: Record<string, unknown>): string {
-	const ts = row.created_at ?? row.timestamp ?? row.updated_at;
+function hint(row: HistoryRow): string {
+	const ts = row.createdAt;
 	if (!ts) return "";
 	const d = new Date(String(ts));
 	return Number.isNaN(d.getTime()) ? String(ts) : d.toLocaleString();
@@ -45,7 +50,7 @@ export default defineCommand({
 		service: {
 			type: "positional",
 			description: `Service name (${VALID})`,
-			required: true,
+			required: false,
 		},
 		page: { type: "string", description: "Page number (default: 1)" },
 		"page-size": { type: "string", description: "Results per page (default: 20, max: 100)" },
@@ -54,38 +59,32 @@ export default defineCommand({
 	run: async ({ args }) => {
 		const quiet = !!args.json;
 		const out = log.create(quiet);
-		const sgai = await createClient(quiet);
-		const service = args.service as (typeof HISTORY_SERVICES)[number];
+		const apiKey = await getApiKey(quiet);
+		const service = args.service as (typeof HISTORY_SERVICES)[number] | undefined;
 		const requestId = (args as { _: string[] })._.at(1);
 		const limit = args["page-size"] ? Number(args["page-size"]) : 20;
 		let page = args.page ? Number(args.page) : 1;
 
 		const fetchPage = async (pg: number) => {
-			const t0 = performance.now();
-			const r = await sgai.history({ service, page: pg, limit });
-			const ms = Math.round(performance.now() - t0);
+			const params: Record<string, unknown> = { page: pg, limit };
+			if (service) params.service = service;
+			const r = await history.list(apiKey, params as any);
 			const d = r.data as {
-				data?: Record<string, unknown>[];
-				requests?: Record<string, unknown>[];
-				next_key?: string;
-				total?: number;
-			};
+				data?: HistoryRow[];
+				pagination?: { page: number; limit: number; total: number };
+			} | null;
+			const rows = d?.data ?? [];
+			const total = d?.pagination?.total ?? 0;
 			return {
-				rows: d.data ?? d.requests ?? [],
-				hasMore: !!d.next_key || (d.total != null && pg * limit < d.total),
-				ms,
+				rows,
+				hasMore: total > pg * limit,
+				ms: r.elapsedMs,
 			};
 		};
 
-		if (quiet || requestId) {
+		if (quiet && !requestId) {
 			try {
 				const { rows } = await fetchPage(page);
-				if (requestId) {
-					const match = rows.find((r) => getId(r) === requestId);
-					if (!match) out.error(`Request ${requestId} not found on page ${page}`);
-					out.result(match);
-					return;
-				}
 				out.result(rows);
 			} catch (err) {
 				out.error(err instanceof Error ? err.message : String(err));
@@ -93,7 +92,17 @@ export default defineCommand({
 			return;
 		}
 
-		out.start(`Fetching ${service} history`);
+		if (requestId) {
+			try {
+				const result = await history.get(apiKey, requestId);
+				out.result(result.data);
+			} catch (err) {
+				out.error(err instanceof Error ? err.message : String(err));
+			}
+			return;
+		}
+
+		out.start(`Fetching ${service ?? "all"} history`);
 		try {
 			const first = await fetchPage(page);
 			out.stop(first.ms);

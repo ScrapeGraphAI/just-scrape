@@ -1,5 +1,6 @@
 import { defineCommand } from "citty";
-import { createClient } from "../lib/client.js";
+import { scrape } from "scrapegraph-js";
+import { getApiKey } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
 const FORMATS = [
@@ -57,7 +58,7 @@ export default defineCommand({
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
 		out.docs("https://docs.scrapegraphai.com/api-reference/scrape");
-		const sgai = await createClient(!!args.json);
+		const apiKey = await getApiKey(!!args.json);
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
@@ -90,7 +91,7 @@ export default defineCommand({
 				case "json": {
 					if (!args.prompt) {
 						out.error("--prompt is required when --format includes json");
-						return { type: "json" as const };
+						return { type: "json" as const, prompt: "" };
 					}
 					return {
 						type: "json" as const,
@@ -105,17 +106,16 @@ export default defineCommand({
 			}
 		});
 
-		const scrapeOptions: Record<string, unknown> = { formats };
-		if (Object.keys(fetchConfig).length > 0) scrapeOptions.fetchConfig = fetchConfig;
+		const params: Record<string, unknown> = { url: args.url, formats };
+		if (Object.keys(fetchConfig).length > 0) params.fetchConfig = fetchConfig;
 
 		out.start("Scraping");
-		const t0 = performance.now();
 		try {
-			const result = await sgai.scrape(args.url, scrapeOptions as any);
-			out.stop(Math.round(performance.now() - t0));
+			const result = await scrape(apiKey, params as any);
+			out.stop(result.elapsedMs);
 			out.result(result.data);
 		} catch (err) {
-			out.stop(Math.round(performance.now() - t0));
+			out.stop(0);
 			out.error(err instanceof Error ? err.message : String(err));
 		}
 	},

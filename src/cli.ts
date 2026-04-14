@@ -17,6 +17,7 @@ const main = defineCommand({
 		scrape: () => import("./commands/scrape.js").then((m) => m.default),
 		markdownify: () => import("./commands/markdownify.js").then((m) => m.default),
 		crawl: () => import("./commands/crawl.js").then((m) => m.default),
+		monitor: () => import("./commands/monitor.js").then((m) => m.default),
 		history: () => import("./commands/history.js").then((m) => m.default),
 		credits: () => import("./commands/credits.js").then((m) => m.default),
 	},
