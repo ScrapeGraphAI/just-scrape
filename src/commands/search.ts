@@ -1,5 +1,4 @@
 import { defineCommand } from "citty";
-import type { ApiSearchOptions } from "scrapegraph-js";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
@@ -49,7 +48,7 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/api-reference/search");
 		const sgai = await createClient(!!args.json);
 
-		const searchOptions: ApiSearchOptions = {};
+		const searchOptions: Record<string, unknown> = {};
 		if (args["num-results"]) searchOptions.numResults = Number(args["num-results"]);
 		if (args.schema) searchOptions.schema = JSON.parse(args.schema);
 		if (args.prompt) searchOptions.prompt = args.prompt;
@@ -62,7 +61,7 @@ export default defineCommand({
 		out.start("Searching");
 		const t0 = performance.now();
 		try {
-			const result = await sgai.search(args.query, searchOptions);
+			const result = await sgai.search(args.query, searchOptions as any);
 			out.stop(Math.round(performance.now() - t0));
 			out.result(result.data);
 		} catch (err) {

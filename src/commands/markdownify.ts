@@ -1,5 +1,4 @@
 import { defineCommand } from "citty";
-import type { ApiScrapeOptions } from "scrapegraph-js";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
@@ -29,13 +28,13 @@ export default defineCommand({
 		if (args.stealth) fetchConfig.stealth = true;
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 
-		const scrapeOptions: ApiScrapeOptions = { format: "markdown" };
+		const scrapeOptions: Record<string, unknown> = { format: "markdown" };
 		if (Object.keys(fetchConfig).length > 0) scrapeOptions.fetchConfig = fetchConfig;
 
 		out.start("Converting to markdown");
 		const t0 = performance.now();
 		try {
-			const result = await sgai.scrape(args.url, scrapeOptions);
+			const result = await sgai.scrape(args.url, scrapeOptions as any);
 			out.stop(Math.round(performance.now() - t0));
 			out.result(result.data);
 		} catch (err) {

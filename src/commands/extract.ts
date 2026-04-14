@@ -1,5 +1,4 @@
 import { defineCommand } from "citty";
-import type { ApiExtractOptions } from "scrapegraph-js";
 import { createClient } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
@@ -42,14 +41,14 @@ export default defineCommand({
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 		if (args.country) fetchConfig.country = args.country;
 
-		const extractOptions: ApiExtractOptions = { prompt: args.prompt };
+		const extractOptions: Record<string, unknown> = { prompt: args.prompt };
 		if (args.schema) extractOptions.schema = JSON.parse(args.schema);
 		if (Object.keys(fetchConfig).length > 0) extractOptions.fetchConfig = fetchConfig;
 
 		out.start("Extracting");
 		const t0 = performance.now();
 		try {
-			const result = await sgai.extract(args.url, extractOptions);
+			const result = await sgai.extract(args.url, extractOptions as any);
 			out.stop(Math.round(performance.now() - t0));
 			out.result(result.data);
 		} catch (err) {
