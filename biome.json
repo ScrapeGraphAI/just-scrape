@@ -16,7 +16,7 @@
 	},
 	"overrides": [
 		{
-			"include": ["tests/**"],
+			"include": ["tests/**", "src/commands.ts"],
 			"linter": {
 				"rules": {
 					"suspicious": {

@@ -10,8 +10,13 @@ if (process.env.JUST_SCRAPE_API_URL && !process.env.SGAI_API_URL)
 
 if (process.env.JUST_SCRAPE_DEBUG === "1" && !process.env.SGAI_DEBUG) process.env.SGAI_DEBUG = "1";
 
-if (process.env.JUST_SCRAPE_TIMEOUT_S && !process.env.SGAI_TIMEOUT_S)
-	process.env.SGAI_TIMEOUT_S = process.env.JUST_SCRAPE_TIMEOUT_S;
+// Bridge legacy JUST_SCRAPE_TIMEOUT_S and SGAI_TIMEOUT_S to the new SGAI_TIMEOUT var
+// (renamed in scrapegraph-js v2; see scrapegraph-js PR #13 / commit 2eba148).
+if (process.env.JUST_SCRAPE_TIMEOUT_S && !process.env.SGAI_TIMEOUT)
+	process.env.SGAI_TIMEOUT = process.env.JUST_SCRAPE_TIMEOUT_S;
+
+if (process.env.SGAI_TIMEOUT_S && !process.env.SGAI_TIMEOUT)
+	process.env.SGAI_TIMEOUT = process.env.SGAI_TIMEOUT_S;
 
 function loadConfigFile(): Record<string, unknown> {
 	if (!existsSync(CONFIG_PATH)) return {};
