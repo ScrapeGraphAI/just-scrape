@@ -78,10 +78,11 @@ Four ways to provide it (checked in order):
 | Variable | Description | Default |
 |---|---|---|
 | `SGAI_API_KEY` | ScrapeGraph API key | — |
-| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com` |
-| `SGAI_TIMEOUT_S` | Request timeout in seconds | `30` |
+| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/api/v2` |
+| `SGAI_TIMEOUT` | Request timeout in seconds | `120` |
+| `SGAI_DEBUG` | Set to `1` to log requests/responses | — |
 
-Legacy variables (`JUST_SCRAPE_API_URL`, `JUST_SCRAPE_TIMEOUT_S`, `JUST_SCRAPE_DEBUG`) are still bridged.
+Legacy variables are still bridged transparently: `JUST_SCRAPE_API_URL` → `SGAI_API_URL`, `JUST_SCRAPE_TIMEOUT_S` / `SGAI_TIMEOUT_S` → `SGAI_TIMEOUT`, `JUST_SCRAPE_DEBUG` → `SGAI_DEBUG`.
 
 ## JSON Mode (`--json`)
 
@@ -272,6 +273,9 @@ just-scrape monitor update --id <id> --interval 2h             # Update interval
 just-scrape monitor pause --id <id>                            # Pause a monitor
 just-scrape monitor resume --id <id>                           # Resume a paused monitor
 just-scrape monitor delete --id <id>                           # Delete a monitor
+just-scrape monitor activity --id <id>                         # Paginated tick history
+just-scrape monitor activity --id <id> --limit 50              # Ticks per page (max 100)
+just-scrape monitor activity --id <id> --cursor <cursor>       # Paginate with a cursor
 ```
 
 ### Examples
@@ -294,6 +298,10 @@ just-scrape monitor list
 # Pause and resume
 just-scrape monitor pause --id abc123
 just-scrape monitor resume --id abc123
+
+# Inspect recent ticks (checks the monitor performed) with their diffs
+just-scrape monitor activity --id abc123 --limit 20
+just-scrape monitor activity --id abc123 --json | jq '.ticks[] | select(.hasChanges == true)'
 ```
 
 ## History

@@ -5,10 +5,28 @@ import { monitor } from "scrapegraph-js";
 import { getApiKey } from "../lib/client.js";
 import * as log from "../lib/log.js";
 
-const ACTIONS = ["create", "list", "get", "update", "delete", "pause", "resume"] as const;
+const ACTIONS = [
+	"create",
+	"list",
+	"get",
+	"update",
+	"delete",
+	"pause",
+	"resume",
+	"activity",
+] as const;
 type Action = (typeof ACTIONS)[number];
 
-const FORMATS = ["markdown", "html", "screenshot", "branding", "links", "images", "summary", "json"] as const;
+const FORMATS = [
+	"markdown",
+	"html",
+	"screenshot",
+	"branding",
+	"links",
+	"images",
+	"summary",
+	"json",
+] as const;
 
 export default defineCommand({
 	meta: {
@@ -52,6 +70,14 @@ export default defineCommand({
 			description: "Fetch mode: auto (default), fast, js",
 		},
 		stealth: { type: "boolean", description: "Enable stealth mode" },
+		limit: {
+			type: "string",
+			description: "Ticks per page for activity (max 100)",
+		},
+		cursor: {
+			type: "string",
+			description: "Pagination cursor for activity",
+		},
 		json: { type: "boolean", description: "Output raw JSON (pipeable)" },
 	},
 	run: async ({ args }) => {
@@ -76,7 +102,8 @@ export default defineCommand({
 					.filter(Boolean);
 
 				const formats = requestedFormats.map((f) => {
-					if (f === "markdown" || f === "html") return { type: f as "markdown" | "html", mode: "normal" as const };
+					if (f === "markdown" || f === "html")
+						return { type: f as "markdown" | "html", mode: "normal" as const };
 					return { type: f };
 				});
 
@@ -227,6 +254,27 @@ export default defineCommand({
 				out.start("Resuming monitor");
 				try {
 					const result = await monitor.resume(apiKey, args.id);
+					out.stop(result.elapsedMs);
+					out.result(result.data);
+				} catch (err) {
+					out.stop(0);
+					out.error(err instanceof Error ? err.message : String(err));
+				}
+				break;
+			}
+
+			case "activity": {
+				if (!args.id) {
+					out.error("--id is required for activity");
+					return;
+				}
+				const params: { limit?: number; cursor?: string } = {};
+				if (args.limit) params.limit = Number(args.limit);
+				if (args.cursor) params.cursor = args.cursor;
+
+				out.start("Fetching monitor activity");
+				try {
+					const result = await monitor.activity(apiKey, args.id, params);
 					out.stop(result.elapsedMs);
 					out.result(result.data);
 				} catch (err) {
