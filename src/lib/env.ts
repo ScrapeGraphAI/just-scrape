@@ -10,8 +10,11 @@ if (process.env.JUST_SCRAPE_API_URL && !process.env.SGAI_API_URL)
 
 if (process.env.JUST_SCRAPE_DEBUG === "1" && !process.env.SGAI_DEBUG) process.env.SGAI_DEBUG = "1";
 
-if (process.env.JUST_SCRAPE_TIMEOUT_S && !process.env.SGAI_TIMEOUT_S)
-	process.env.SGAI_TIMEOUT_S = process.env.JUST_SCRAPE_TIMEOUT_S;
+// SDK v2 renamed SGAI_TIMEOUT_S -> SGAI_TIMEOUT. Bridge legacy vars for back-compat.
+if (!process.env.SGAI_TIMEOUT) {
+	const legacy = process.env.JUST_SCRAPE_TIMEOUT_S ?? process.env.SGAI_TIMEOUT_S;
+	if (legacy) process.env.SGAI_TIMEOUT = legacy;
+}
 
 function loadConfigFile(): Record<string, unknown> {
 	if (!existsSync(CONFIG_PATH)) return {};

@@ -1,5 +1,5 @@
 import { defineCommand } from "citty";
-import * as scrapegraphai from "scrapegraph-js";
+import { checkHealth } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 
@@ -13,10 +13,10 @@ export default defineCommand({
 	},
 	run: async ({ args }) => {
 		const out = log.create(!!args.json);
-		const key = await resolveApiKey(!!args.json);
+		const apiKey = await resolveApiKey(!!args.json);
 
 		out.start("Checking API health");
-		const result = await scrapegraphai.checkHealth(key);
+		const result = await checkHealth(apiKey);
 		out.stop(result.elapsedMs);
 
 		if (result.data) out.result(result.data);
