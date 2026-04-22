@@ -1,19 +1,12 @@
 import { defineCommand } from "citty";
 import { scrape } from "scrapegraph-js";
-import type { FormatConfig, ScrapeRequest } from "scrapegraph-js";
+import type { FetchConfig, FormatConfig, ScrapeRequest } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
+import { BASE_FORMATS, type BaseFormat, type HtmlMode, buildBaseFormat } from "../lib/formats.js";
 import * as log from "../lib/log.js";
+import { parseIntArg, parseJsonArg } from "../lib/parse.js";
 
-const FORMATS = [
-	"markdown",
-	"html",
-	"screenshot",
-	"branding",
-	"links",
-	"images",
-	"summary",
-	"json",
-] as const;
+const FORMATS = [...BASE_FORMATS, "json"] as const;
 type Format = (typeof FORMATS)[number];
 
 export default defineCommand({
@@ -53,7 +46,7 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/api-reference/scrape");
 		const apiKey = await resolveApiKey(!!args.json);
 
-		const htmlMode = (args["html-mode"] ?? "normal") as "normal" | "reader" | "prune";
+		const htmlMode = (args["html-mode"] ?? "normal") as HtmlMode;
 		const requested = (args.format ?? "markdown")
 			.split(",")
 			.map((f) => f.trim())
@@ -64,49 +57,32 @@ export default defineCommand({
 			if (!FORMATS.includes(f as Format)) {
 				out.error(`Unknown format: ${f}. Valid: ${FORMATS.join(", ")}`);
 			}
-			switch (f as Format) {
-				case "markdown":
-					formats.push({ type: "markdown", mode: htmlMode });
-					break;
-				case "html":
-					formats.push({ type: "html", mode: htmlMode });
-					break;
-				case "json":
-					if (!args.prompt) out.error("--prompt is required when format includes json");
-					formats.push({
-						type: "json",
-						prompt: args.prompt as string,
-						...(args.schema ? { schema: JSON.parse(args.schema) } : {}),
-						mode: htmlMode,
-					});
-					break;
-				case "screenshot":
-					formats.push({ type: "screenshot" });
-					break;
-				case "branding":
-					formats.push({ type: "branding" });
-					break;
-				case "links":
-					formats.push({ type: "links" });
-					break;
-				case "images":
-					formats.push({ type: "images" });
-					break;
-				case "summary":
-					formats.push({ type: "summary" });
-					break;
+			if (f === "json") {
+				if (!args.prompt) out.error("--prompt is required when format includes json");
+				formats.push({
+					type: "json",
+					prompt: args.prompt as string,
+					...(args.schema && {
+						schema: parseJsonArg(args.schema, "schema", out) as Record<string, unknown>,
+					}),
+					mode: htmlMode,
+				});
+			} else {
+				formats.push(buildBaseFormat(f as BaseFormat, htmlMode));
 			}
 		}
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.stealth) fetchConfig.stealth = true;
-		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
+		if (args.scrolls) fetchConfig.scrolls = parseIntArg(args.scrolls, "scrolls", out);
 		if (args.country) fetchConfig.country = args.country;
 
-		const params: ScrapeRequest = { url: args.url, formats };
-		if (Object.keys(fetchConfig).length > 0)
-			(params as unknown as Record<string, unknown>).fetchConfig = fetchConfig;
+		const params: ScrapeRequest = {
+			url: args.url,
+			formats,
+			...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
+		};
 
 		out.start("Scraping");
 		const result = await scrape(apiKey, params);

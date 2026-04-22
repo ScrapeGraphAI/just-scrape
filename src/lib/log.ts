@@ -33,7 +33,7 @@ export function create(quiet = false) {
 			if (quiet) console.log(JSON.stringify(data));
 			else console.log(`\n${highlight(JSON.stringify(data, null, 2))}\n`);
 		},
-		error(message?: string) {
+		error(message?: string): never {
 			p.log.error(message ?? "Unknown error");
 			process.exit(1);
 		},

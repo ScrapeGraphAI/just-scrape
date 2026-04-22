@@ -5,6 +5,7 @@ import { history } from "scrapegraph-js";
 import type { HistoryEntry, Service } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
+import { parseIntArg } from "../lib/parse.js";
 
 const SERVICES = ["scrape", "extract", "search", "monitor", "crawl"] as const;
 const VALID = SERVICES.join(", ");
@@ -49,11 +50,14 @@ export default defineCommand({
 		const quiet = !!args.json;
 		const out = log.create(quiet);
 		const apiKey = await resolveApiKey(quiet);
-		const service = args.service as Service | undefined;
-		if (service && !SERVICES.includes(service)) out.error(`Invalid service. Valid: ${VALID}`);
+		const rawService = args.service;
+		if (rawService && !SERVICES.includes(rawService as Service)) {
+			out.error(`Invalid service. Valid: ${VALID}`);
+		}
+		const service = rawService as Service | undefined;
 		const requestId = (args as { _: string[] })._.at(1);
-		const limit = args["page-size"] ? Number(args["page-size"]) : 20;
-		let page = args.page ? Number(args.page) : 1;
+		const limit = args["page-size"] ? parseIntArg(args["page-size"], "page-size", out) : 20;
+		let page = args.page ? parseIntArg(args.page, "page", out) : 1;
 
 		const fetchPage = async (pg: number) => {
 			const r = await history.list(apiKey, {

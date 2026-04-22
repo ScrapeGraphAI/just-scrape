@@ -1,8 +1,12 @@
 import { defineCommand } from "citty";
 import { search } from "scrapegraph-js";
-import type { SearchRequest } from "scrapegraph-js";
+import type { FetchConfig, SearchRequest } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
+import { parseIntArg, parseJsonArg } from "../lib/parse.js";
+
+type TimeRange = NonNullable<SearchRequest["timeRange"]>;
+type SearchFormat = NonNullable<SearchRequest["format"]>;
 
 export default defineCommand({
 	meta: {
@@ -43,19 +47,24 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/api-reference/search");
 		const apiKey = await resolveApiKey(!!args.json);
 
-		const params: SearchRequest = { query: args.query };
-		const mut = params as Record<string, unknown>;
-		if (args["num-results"]) mut.numResults = Number(args["num-results"]);
-		if (args.prompt) mut.prompt = args.prompt;
-		if (args.schema) mut.schema = JSON.parse(args.schema);
-		if (args.format) mut.format = args.format;
-		if (args.country) mut.locationGeoCode = args.country;
-		if (args["time-range"]) mut.timeRange = args["time-range"];
-
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.stealth) fetchConfig.stealth = true;
-		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
-		if (Object.keys(fetchConfig).length > 0) mut.fetchConfig = fetchConfig;
+		if (args.headers) fetchConfig.headers = parseJsonArg(args.headers, "headers", out);
+
+		const params: SearchRequest = {
+			query: args.query,
+			...(args["num-results"] && {
+				numResults: parseIntArg(args["num-results"], "num-results", out),
+			}),
+			...(args.prompt && { prompt: args.prompt }),
+			...(args.schema && {
+				schema: parseJsonArg(args.schema, "schema", out) as Record<string, unknown>,
+			}),
+			...(args.format && { format: args.format as SearchFormat }),
+			...(args.country && { locationGeoCode: args.country }),
+			...(args["time-range"] && { timeRange: args["time-range"] as TimeRange }),
+			...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
+		};
 
 		out.start("Searching");
 		const result = await search(apiKey, params);

@@ -1,26 +1,12 @@
 import { defineCommand } from "citty";
 import { crawl } from "scrapegraph-js";
-import type { CrawlRequest, FormatConfig } from "scrapegraph-js";
+import type { CrawlRequest, FetchConfig } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
+import { BASE_FORMATS, type BaseFormat, buildBaseFormat } from "../lib/formats.js";
 import * as log from "../lib/log.js";
-
-const FORMATS = [
-	"markdown",
-	"html",
-	"screenshot",
-	"branding",
-	"links",
-	"images",
-	"summary",
-] as const;
-type Format = (typeof FORMATS)[number];
+import { parseIntArg, parseJsonArg } from "../lib/parse.js";
 
 const POLL_INTERVAL_MS = 3000;
-
-function buildFormat(f: Format): FormatConfig {
-	if (f === "markdown" || f === "html") return { type: f, mode: "normal" };
-	return { type: f } as FormatConfig;
-}
 
 export default defineCommand({
 	meta: {
@@ -36,7 +22,7 @@ export default defineCommand({
 		format: {
 			type: "string",
 			alias: "f",
-			description: `Per-page format(s), comma-separated: ${FORMATS.join(", ")} (default: markdown)`,
+			description: `Per-page format(s), comma-separated: ${BASE_FORMATS.join(", ")} (default: markdown)`,
 		},
 		"max-pages": { type: "string", description: "Maximum pages to crawl (default 50, max 1000)" },
 		"max-depth": { type: "string", description: "Crawl depth (default 2)" },
@@ -64,24 +50,40 @@ export default defineCommand({
 			.map((f) => f.trim())
 			.filter(Boolean);
 		for (const f of requested) {
-			if (!FORMATS.includes(f as Format))
-				out.error(`Unknown format: ${f}. Valid: ${FORMATS.join(", ")}`);
+			if (!BASE_FORMATS.includes(f as BaseFormat))
+				out.error(`Unknown format: ${f}. Valid: ${BASE_FORMATS.join(", ")}`);
 		}
-		const formats = requested.map((f) => buildFormat(f as Format));
-
-		const params: CrawlRequest = { url: args.url, formats };
-		const mut = params as Record<string, unknown>;
-		if (args["max-pages"]) mut.maxPages = Number(args["max-pages"]);
-		if (args["max-depth"]) mut.maxDepth = Number(args["max-depth"]);
-		if (args["max-links-per-page"]) mut.maxLinksPerPage = Number(args["max-links-per-page"]);
-		if (args["allow-external"]) mut.allowExternal = true;
-		if (args["include-patterns"]) mut.includePatterns = JSON.parse(args["include-patterns"]);
-		if (args["exclude-patterns"]) mut.excludePatterns = JSON.parse(args["exclude-patterns"]);
+		const formats = requested.map((f) => buildBaseFormat(f as BaseFormat));
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.stealth) fetchConfig.stealth = true;
-		if (Object.keys(fetchConfig).length > 0) mut.fetchConfig = fetchConfig;
+
+		const params: CrawlRequest = {
+			url: args.url,
+			formats,
+			...(args["max-pages"] && { maxPages: parseIntArg(args["max-pages"], "max-pages", out) }),
+			...(args["max-depth"] && { maxDepth: parseIntArg(args["max-depth"], "max-depth", out) }),
+			...(args["max-links-per-page"] && {
+				maxLinksPerPage: parseIntArg(args["max-links-per-page"], "max-links-per-page", out),
+			}),
+			...(args["allow-external"] && { allowExternal: true }),
+			...(args["include-patterns"] && {
+				includePatterns: parseJsonArg(
+					args["include-patterns"],
+					"include-patterns",
+					out,
+				) as string[],
+			}),
+			...(args["exclude-patterns"] && {
+				excludePatterns: parseJsonArg(
+					args["exclude-patterns"],
+					"exclude-patterns",
+					out,
+				) as string[],
+			}),
+			...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
+		};
 
 		out.start("Starting crawl");
 		const job = await crawl.start(apiKey, params);

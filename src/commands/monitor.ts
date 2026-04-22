@@ -3,12 +3,15 @@ import chalk from "chalk";
 import { defineCommand } from "citty";
 import { monitor } from "scrapegraph-js";
 import type {
+	FetchConfig,
+	FormatConfig,
 	MonitorCreateRequest,
 	MonitorUpdateRequest,
-	FormatConfig,
 } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
+import { BASE_FORMATS, type BaseFormat, buildBaseFormat } from "../lib/formats.js";
 import * as log from "../lib/log.js";
+import { parseIntArg } from "../lib/parse.js";
 
 const ACTIONS = [
 	"create",
@@ -22,24 +25,14 @@ const ACTIONS = [
 ] as const;
 type Action = (typeof ACTIONS)[number];
 
-const FORMATS = [
-	"markdown",
-	"html",
-	"screenshot",
-	"branding",
-	"links",
-	"images",
-	"summary",
-] as const;
-
-function buildFormats(raw: string): FormatConfig[] {
+function buildFormats(raw: string, onInvalid: (f: string) => never): FormatConfig[] {
 	return raw
 		.split(",")
 		.map((f) => f.trim())
 		.filter(Boolean)
 		.map((f) => {
-			if (f === "markdown" || f === "html") return { type: f, mode: "normal" as const };
-			return { type: f } as FormatConfig;
+			if (!BASE_FORMATS.includes(f as BaseFormat)) onInvalid(f);
+			return buildBaseFormat(f as BaseFormat);
 		});
 }
 
@@ -64,7 +57,7 @@ export default defineCommand({
 		format: {
 			type: "string",
 			alias: "f",
-			description: `Formats to track, comma-separated: ${FORMATS.join(", ")} (default: markdown)`,
+			description: `Formats to track, comma-separated: ${BASE_FORMATS.join(", ")} (default: markdown)`,
 		},
 		"webhook-url": { type: "string", description: "Webhook URL for change notifications" },
 		mode: { type: "string", alias: "m", description: "Fetch mode: auto (default), fast, js" },
@@ -81,33 +74,33 @@ export default defineCommand({
 
 		if (!ACTIONS.includes(action)) {
 			out.error(`Unknown action: ${action}. Valid: ${ACTIONS.join(", ")}`);
-			return;
 		}
 
 		const needsId: Action[] = ["get", "update", "delete", "pause", "resume", "activity"];
 		if (needsId.includes(action) && !args.id) {
 			out.error(`--id is required for ${action}`);
-			return;
 		}
 
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.stealth) fetchConfig.stealth = true;
 
+		const onInvalidFormat = (f: string): never =>
+			out.error(`Unknown format: ${f}. Valid: ${BASE_FORMATS.join(", ")}`);
+
 		switch (action) {
 			case "create": {
-				if (!args.url) return out.error("--url is required for create");
-				if (!args.interval) return out.error("--interval is required for create");
+				if (!args.url) out.error("--url is required for create");
+				if (!args.interval) out.error("--interval is required for create");
 
 				const params: MonitorCreateRequest = {
 					url: args.url,
 					interval: args.interval,
-					formats: buildFormats(args.format ?? "markdown"),
+					formats: buildFormats(args.format ?? "markdown", onInvalidFormat),
+					...(args.name && { name: args.name }),
+					...(args["webhook-url"] && { webhookUrl: args["webhook-url"] }),
+					...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
 				};
-				const mut = params as Record<string, unknown>;
-				if (args.name) mut.name = args.name;
-				if (args["webhook-url"]) mut.webhookUrl = args["webhook-url"];
-				if (Object.keys(fetchConfig).length > 0) mut.fetchConfig = fetchConfig;
 
 				out.start("Creating monitor");
 				const result = await monitor.create(apiKey, params);
@@ -146,13 +139,13 @@ export default defineCommand({
 			}
 
 			case "update": {
-				const params: MonitorUpdateRequest = {};
-				const mut = params as Record<string, unknown>;
-				if (args.name) mut.name = args.name;
-				if (args.interval) mut.interval = args.interval;
-				if (args["webhook-url"]) mut.webhookUrl = args["webhook-url"];
-				if (args.format) mut.formats = buildFormats(args.format);
-				if (Object.keys(fetchConfig).length > 0) mut.fetchConfig = fetchConfig;
+				const params: MonitorUpdateRequest = {
+					...(args.name && { name: args.name }),
+					...(args.interval && { interval: args.interval }),
+					...(args["webhook-url"] && { webhookUrl: args["webhook-url"] }),
+					...(args.format && { formats: buildFormats(args.format, onInvalidFormat) }),
+					...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
+				};
 
 				out.start("Updating monitor");
 				const result = await monitor.update(apiKey, args.id as string, params);
@@ -190,9 +183,10 @@ export default defineCommand({
 			}
 
 			case "activity": {
-				const qp: { limit?: number; cursor?: string } = {};
-				if (args.limit) qp.limit = Number(args.limit);
-				if (args.cursor) qp.cursor = args.cursor;
+				const qp: { limit?: number; cursor?: string } = {
+					...(args.limit && { limit: parseIntArg(args.limit, "limit", out) }),
+					...(args.cursor && { cursor: args.cursor }),
+				};
 
 				out.start("Fetching monitor activity");
 				const result = await monitor.activity(apiKey, args.id as string, qp);
