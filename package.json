@@ -28,7 +28,7 @@
 		"chalk": "^5.4.1",
 		"citty": "^0.1.6",
 		"dotenv": "^17.2.4",
-		"scrapegraph-js": "github:ScrapeGraphAI/scrapegraph-js#096c110"
+		"scrapegraph-js": "^2.1.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

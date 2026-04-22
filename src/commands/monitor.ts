@@ -3,9 +3,9 @@ import chalk from "chalk";
 import { defineCommand } from "citty";
 import { monitor } from "scrapegraph-js";
 import type {
-	ApiMonitorCreateInput,
-	ApiMonitorUpdateInput,
-	ApiScrapeFormatEntry,
+	MonitorCreateRequest,
+	MonitorUpdateRequest,
+	FormatConfig,
 } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
@@ -32,14 +32,14 @@ const FORMATS = [
 	"summary",
 ] as const;
 
-function buildFormats(raw: string): ApiScrapeFormatEntry[] {
+function buildFormats(raw: string): FormatConfig[] {
 	return raw
 		.split(",")
 		.map((f) => f.trim())
 		.filter(Boolean)
 		.map((f) => {
 			if (f === "markdown" || f === "html") return { type: f, mode: "normal" as const };
-			return { type: f } as ApiScrapeFormatEntry;
+			return { type: f } as FormatConfig;
 		});
 }
 
@@ -99,7 +99,7 @@ export default defineCommand({
 				if (!args.url) return out.error("--url is required for create");
 				if (!args.interval) return out.error("--interval is required for create");
 
-				const params: ApiMonitorCreateInput = {
+				const params: MonitorCreateRequest = {
 					url: args.url,
 					interval: args.interval,
 					formats: buildFormats(args.format ?? "markdown"),
@@ -146,7 +146,7 @@ export default defineCommand({
 			}
 
 			case "update": {
-				const params: ApiMonitorUpdateInput = {};
+				const params: MonitorUpdateRequest = {};
 				const mut = params as Record<string, unknown>;
 				if (args.name) mut.name = args.name;
 				if (args.interval) mut.interval = args.interval;

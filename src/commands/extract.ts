@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import { extract } from "scrapegraph-js";
-import type { ApiExtractRequest } from "scrapegraph-js";
+import type { ExtractRequest } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 
@@ -47,7 +47,7 @@ export default defineCommand({
 		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
 		if (args.country) fetchConfig.country = args.country;
 
-		const params: ApiExtractRequest = { url: args.url, prompt: args.prompt };
+		const params: ExtractRequest = { url: args.url, prompt: args.prompt };
 		if (args.schema) (params as Record<string, unknown>).schema = JSON.parse(args.schema);
 		if (args["html-mode"]) (params as Record<string, unknown>).mode = args["html-mode"];
 		if (Object.keys(fetchConfig).length > 0)

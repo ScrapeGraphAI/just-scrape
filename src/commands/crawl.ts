@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import { crawl } from "scrapegraph-js";
-import type { ApiCrawlRequest, ApiScrapeFormatEntry } from "scrapegraph-js";
+import type { CrawlRequest, FormatConfig } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 
@@ -17,9 +17,9 @@ type Format = (typeof FORMATS)[number];
 
 const POLL_INTERVAL_MS = 3000;
 
-function buildFormat(f: Format): ApiScrapeFormatEntry {
+function buildFormat(f: Format): FormatConfig {
 	if (f === "markdown" || f === "html") return { type: f, mode: "normal" };
-	return { type: f } as ApiScrapeFormatEntry;
+	return { type: f } as FormatConfig;
 }
 
 export default defineCommand({
@@ -69,7 +69,7 @@ export default defineCommand({
 		}
 		const formats = requested.map((f) => buildFormat(f as Format));
 
-		const params: ApiCrawlRequest = { url: args.url, formats };
+		const params: CrawlRequest = { url: args.url, formats };
 		const mut = params as Record<string, unknown>;
 		if (args["max-pages"]) mut.maxPages = Number(args["max-pages"]);
 		if (args["max-depth"]) mut.maxDepth = Number(args["max-depth"]);

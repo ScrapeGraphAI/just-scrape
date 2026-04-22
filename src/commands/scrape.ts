@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import { scrape } from "scrapegraph-js";
-import type { ApiScrapeFormatEntry, ApiScrapeRequest } from "scrapegraph-js";
+import type { FormatConfig, ScrapeRequest } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 
@@ -59,7 +59,7 @@ export default defineCommand({
 			.map((f) => f.trim())
 			.filter(Boolean);
 
-		const formats: ApiScrapeFormatEntry[] = [];
+		const formats: FormatConfig[] = [];
 		for (const f of requested) {
 			if (!FORMATS.includes(f as Format)) {
 				out.error(`Unknown format: ${f}. Valid: ${FORMATS.join(", ")}`);
@@ -104,7 +104,7 @@ export default defineCommand({
 		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
 		if (args.country) fetchConfig.country = args.country;
 
-		const params: ApiScrapeRequest = { url: args.url, formats };
+		const params: ScrapeRequest = { url: args.url, formats };
 		if (Object.keys(fetchConfig).length > 0)
 			(params as unknown as Record<string, unknown>).fetchConfig = fetchConfig;
 

@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import { search } from "scrapegraph-js";
-import type { ApiSearchRequest } from "scrapegraph-js";
+import type { SearchRequest } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 
@@ -43,7 +43,7 @@ export default defineCommand({
 		out.docs("https://docs.scrapegraphai.com/api-reference/search");
 		const apiKey = await resolveApiKey(!!args.json);
 
-		const params: ApiSearchRequest = { query: args.query };
+		const params: SearchRequest = { query: args.query };
 		const mut = params as Record<string, unknown>;
 		if (args["num-results"]) mut.numResults = Number(args["num-results"]);
 		if (args.prompt) mut.prompt = args.prompt;
