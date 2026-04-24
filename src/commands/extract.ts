@@ -1,8 +1,9 @@
 import { defineCommand } from "citty";
 import { extract } from "scrapegraph-js";
-import type { ApiExtractRequest } from "scrapegraph-js";
+import type { ExtractRequest, FetchConfig } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
+import { parseIntArg, parseJsonArg } from "../lib/parse.js";
 
 export default defineCommand({
 	meta: {
@@ -42,16 +43,20 @@ export default defineCommand({
 		const fetchConfig: Record<string, unknown> = {};
 		if (args.mode) fetchConfig.mode = args.mode;
 		if (args.stealth) fetchConfig.stealth = true;
-		if (args.scrolls) fetchConfig.scrolls = Number(args.scrolls);
-		if (args.cookies) fetchConfig.cookies = JSON.parse(args.cookies);
-		if (args.headers) fetchConfig.headers = JSON.parse(args.headers);
+		if (args.scrolls) fetchConfig.scrolls = parseIntArg(args.scrolls, "scrolls", out);
+		if (args.cookies) fetchConfig.cookies = parseJsonArg(args.cookies, "cookies", out);
+		if (args.headers) fetchConfig.headers = parseJsonArg(args.headers, "headers", out);
 		if (args.country) fetchConfig.country = args.country;
 
-		const params: ApiExtractRequest = { url: args.url, prompt: args.prompt };
-		if (args.schema) (params as Record<string, unknown>).schema = JSON.parse(args.schema);
-		if (args["html-mode"]) (params as Record<string, unknown>).mode = args["html-mode"];
-		if (Object.keys(fetchConfig).length > 0)
-			(params as Record<string, unknown>).fetchConfig = fetchConfig;
+		const params: ExtractRequest = {
+			url: args.url,
+			prompt: args.prompt,
+			...(args.schema && {
+				schema: parseJsonArg(args.schema, "schema", out) as Record<string, unknown>,
+			}),
+			...(args["html-mode"] && { mode: args["html-mode"] as "normal" | "reader" | "prune" }),
+			...(Object.keys(fetchConfig).length > 0 && { fetchConfig: fetchConfig as FetchConfig }),
+		};
 
 		out.start("Extracting");
 		const result = await extract(apiKey, params);

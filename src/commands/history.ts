@@ -2,20 +2,21 @@ import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
 import { history } from "scrapegraph-js";
-import type { ApiHistoryEntry, ApiHistoryService } from "scrapegraph-js";
+import type { HistoryEntry, Service } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
+import { parseIntArg } from "../lib/parse.js";
 
 const SERVICES = ["scrape", "extract", "search", "monitor", "crawl"] as const;
 const VALID = SERVICES.join(", ");
 const LOAD_MORE = "__load_more__";
 
-function entryUrl(e: ApiHistoryEntry): string {
+function entryUrl(e: HistoryEntry): string {
 	const params = e.params as Record<string, unknown>;
 	return String(params.url ?? params.query ?? "");
 }
 
-function entryLabel(e: ApiHistoryEntry): string {
+function entryLabel(e: HistoryEntry): string {
 	const short = e.id.length > 12 ? `${e.id.slice(0, 12)}…` : e.id;
 	const url = entryUrl(e);
 	const urlShort = url.length > 50 ? `${url.slice(0, 49)}…` : url;
@@ -24,7 +25,7 @@ function entryLabel(e: ApiHistoryEntry): string {
 	return `${chalk.dim(short)}  ${color(e.status)}  ${urlShort}`;
 }
 
-function entryHint(e: ApiHistoryEntry): string {
+function entryHint(e: HistoryEntry): string {
 	if (!e.createdAt) return "";
 	const d = new Date(e.createdAt);
 	return Number.isNaN(d.getTime()) ? e.createdAt : d.toLocaleString();
@@ -49,11 +50,14 @@ export default defineCommand({
 		const quiet = !!args.json;
 		const out = log.create(quiet);
 		const apiKey = await resolveApiKey(quiet);
-		const service = args.service as ApiHistoryService | undefined;
-		if (service && !SERVICES.includes(service)) out.error(`Invalid service. Valid: ${VALID}`);
+		const rawService = args.service;
+		if (rawService && !SERVICES.includes(rawService as Service)) {
+			out.error(`Invalid service. Valid: ${VALID}`);
+		}
+		const service = rawService as Service | undefined;
 		const requestId = (args as { _: string[] })._.at(1);
-		const limit = args["page-size"] ? Number(args["page-size"]) : 20;
-		let page = args.page ? Number(args.page) : 1;
+		const limit = args["page-size"] ? parseIntArg(args["page-size"], "page-size", out) : 20;
+		let page = args.page ? parseIntArg(args.page, "page", out) : 1;
 
 		const fetchPage = async (pg: number) => {
 			const r = await history.list(apiKey, {
@@ -62,7 +66,7 @@ export default defineCommand({
 				...(service ? { service } : {}),
 			});
 			if (!r.data) out.error(r.error);
-			const d = r.data as { data: ApiHistoryEntry[]; pagination: { total: number } };
+			const d = r.data as { data: HistoryEntry[]; pagination: { total: number } };
 			return {
 				rows: d.data ?? [],
 				hasMore: (d.pagination?.total ?? 0) > pg * limit,
