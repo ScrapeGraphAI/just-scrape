@@ -1,10 +1,10 @@
 # just-scrape
 
-Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com?utm_source=github&utm_medium=readme&utm_campaign=skill) 💜
+Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com?utm_source=skill&utm_medium=readme&utm_campaign=skill) 💜
 
 ![Demo Video](/assets/demo.gif)
 
-Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com?utm_source=github&utm_medium=readme&utm_campaign=skill) — AI-powered web scraping, data extraction, search, crawling, and page-change monitoring.
+Command-line interface for [ScrapeGraph AI](https://scrapegraphai.com?utm_source=skil&utm_medium=readme&utm_campaign=skill) — AI-powered web scraping, data extraction, search, crawling, and page-change monitoring.
 
 > **v1.0.0 — SDK v2 migration.** This release migrates the CLI to the [scrapegraph-js v2 SDK](https://github.com/ScrapeGraphAI/scrapegraph-js/pull/13). The v1 endpoints (`smart-scraper`, `search-scraper`, `markdownify`, `sitemap`, `agentic-scraper`, `generate-schema`) have been removed. Use `scrape --format …` for multi-format output, `extract` for structured data, and the new `monitor` command for page-change tracking.
 
@@ -49,11 +49,11 @@ npx just-scrape --help
 bunx just-scrape --help
 ```
 
-Package: [just-scrape](https://www.npmjs.com/package/just-scrape?utm_source=github&utm_medium=readme&utm_campaign=skill) on npm.
+Package: [just-scrape](https://www.npmjs.com/package/just-scrape?utm_source=skil&utm_medium=readme&utm_campaign=skill) on npm.
 
 ## Coding Agent Skill
 
-You can use just-scrape as a skill for AI coding agents via [Vercel's skills.sh](https://skills.sh?utm_source=github&utm_medium=readme&utm_campaign=skill).
+You can use just-scrape as a skill for AI coding agents via [Vercel's skills.sh](https://skills.sh?utm_source=skil&utm_medium=readme&utm_campaign=skill).
 
 Or you can manually install it:
 
@@ -61,11 +61,11 @@ Or you can manually install it:
 bunx skills add https://github.com/ScrapeGraphAI/just-scrape
 ```
 
-Browse the skill: [skills.sh/scrapegraphai/just-scrape/just-scrape](https://skills.sh/scrapegraphai/just-scrape/just-scrape?utm_source=github&utm_medium=readme&utm_campaign=skill)
+Browse the skill: [skills.sh/scrapegraphai/just-scrape/just-scrape](https://skills.sh/scrapegraphai/just-scrape/just-scrape?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Configuration
 
-The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com?utm_source=github&utm_medium=readme&utm_campaign=skill).
+The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com?utm_source=skil&utm_medium=readme&utm_campaign=skill).
 
 Four ways to provide it:
 
@@ -95,27 +95,27 @@ just-scrape history scrape --json | jq '.[].id'
 
 ## Scrape
 
-[docs](https://docs.scrapegraphai.com/api-reference/scrape?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/scrape?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Extract
 
-[docs](https://docs.scrapegraphai.com/api-reference/extract?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/extract?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Search
 
-[docs](https://docs.scrapegraphai.com/api-reference/search?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/search?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Crawl
 
-[docs](https://docs.scrapegraphai.com/api-reference/crawl?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/crawl?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Monitor
 
-[docs](https://docs.scrapegraphai.com/api-reference/monitor?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/monitor?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## History
 
-[docs](https://docs.scrapegraphai.com/api-reference/history?utm_source=github&utm_medium=readme&utm_campaign=skill)
+[docs](https://docs.scrapegraphai.com/api-reference/history?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Credits
 
@@ -142,4 +142,4 @@ bun run dev --help
 
 ---
 
-Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com?utm_source=github&utm_medium=readme&utm_campaign=skill) 💜
+Made with love by the [ScrapeGraphAI team](https://scrapegraphai.com?utm_source=skil&utm_medium=readme&utm_campaign=skill) 💜
