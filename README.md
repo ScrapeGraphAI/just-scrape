@@ -104,8 +104,6 @@ just-scrape scrape https://example.com -f json -p "Extract all products"
 just-scrape scrape https://app.example.com --mode js --stealth --scrolls 5
 ```
 
-[docs](https://docs.scrapegraphai.com/api-reference/scrape?utm_source=skil&utm_medium=readme&utm_campaign=skill)
-
 ## Extract
 
 Extract structured JSON from a known URL with AI. A dedicated endpoint optimized for extraction; equivalent to `scrape -f json` but tuned for that path.
@@ -118,8 +116,6 @@ just-scrape extract https://app.example.com -p "Extract user stats" \
   --cookies '{"session":"abc123"}' --stealth
 ```
 
-[docs](https://docs.scrapegraphai.com/api-reference/extract?utm_source=skil&utm_medium=readme&utm_campaign=skill)
-
 ## Search
 
 Search the web and optionally extract structured data from the results.
@@ -130,8 +126,6 @@ just-scrape search "Top 5 cloud providers pricing" \
   -p "Extract provider name and free-tier details"
 just-scrape search "AI regulation EU" --time-range past_week --country eu
 ```
-
-[docs](https://docs.scrapegraphai.com/api-reference/search?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Crawl
 
@@ -144,8 +138,6 @@ just-scrape crawl https://example.com \
   --exclude-patterns '[".*\\.pdf$"]'
 just-scrape crawl https://example.com -f markdown,links,images --max-pages 20
 ```
-
-[docs](https://docs.scrapegraphai.com/api-reference/crawl?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Monitor
 
@@ -163,8 +155,6 @@ just-scrape monitor pause --id mon_abc123
 
 `--interval` accepts a cron expression (`0 * * * *`) or shorthand (`1h`, `30m`, `1d`).
 
-[docs](https://docs.scrapegraphai.com/api-reference/monitor?utm_source=skil&utm_medium=readme&utm_campaign=skill)
-
 ## History
 
 Browse past requests. Interactive by default (arrow keys); pass an ID to view a specific request. Services: `scrape`, `extract`, `search`, `crawl`, `monitor`.
@@ -175,8 +165,6 @@ just-scrape history extract
 just-scrape history scrape req_abc123 --json
 just-scrape history crawl --json --page-size 100 | jq '.[] | {id, status}'
 ```
-
-[docs](https://docs.scrapegraphai.com/api-reference/history?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Credits
 
