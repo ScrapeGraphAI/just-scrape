@@ -79,7 +79,7 @@ Four ways to provide it:
 | Variable       | Description           | Default                                |
 | -------------- | --------------------- | -------------------------------------- |
 | `SGAI_API_KEY` | ScrapeGraph API key   | —                                      |
-| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/api/v2` |
+| `SGAI_API_URL` | Override API base URL | `https://v2-api.scrapegraphai.com` |
 | `SGAI_TIMEOUT` | Timeout (seconds)     | `120`                                  |
 | `SGAI_DEBUG`   | Debug logs            | `0`                                    |
 
@@ -95,35 +95,101 @@ just-scrape history scrape --json | jq '.[].id'
 
 ## Scrape
 
+Fetch a URL and return one or more formats: `markdown`, `html`, `screenshot`, `branding`, `links`, `images`, `summary`, or `json` (AI extraction). Default: `markdown`.
+
+```bash
+just-scrape scrape https://example.com
+just-scrape scrape https://example.com -f markdown,links,images
+just-scrape scrape https://example.com -f json -p "Extract all products"
+just-scrape scrape https://app.example.com --mode js --stealth --scrolls 5
+```
+
 [docs](https://docs.scrapegraphai.com/api-reference/scrape?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Extract
+
+Extract structured JSON from a known URL with AI. A dedicated endpoint optimized for extraction; equivalent to `scrape -f json` but tuned for that path.
+
+```bash
+just-scrape extract https://store.example.com -p "Extract product names and prices"
+just-scrape extract https://news.example.com -p "Get headlines and dates" \
+  --schema '{"type":"object","properties":{"articles":{"type":"array"}}}'
+just-scrape extract https://app.example.com -p "Extract user stats" \
+  --cookies '{"session":"abc123"}' --stealth
+```
 
 [docs](https://docs.scrapegraphai.com/api-reference/extract?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Search
 
+Search the web and optionally extract structured data from the results.
+
+```bash
+just-scrape search "Best Python web frameworks in 2026" --num-results 10
+just-scrape search "Top 5 cloud providers pricing" \
+  -p "Extract provider name and free-tier details"
+just-scrape search "AI regulation EU" --time-range past_week --country eu
+```
+
 [docs](https://docs.scrapegraphai.com/api-reference/search?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Crawl
+
+Crawl multiple pages from a starting URL. Returns a job that's polled until completion.
+
+```bash
+just-scrape crawl https://docs.example.com --max-pages 50 --max-depth 3
+just-scrape crawl https://example.com \
+  --include-patterns '["^https://example\\.com/blog/.*"]' \
+  --exclude-patterns '[".*\\.pdf$"]'
+just-scrape crawl https://example.com -f markdown,links,images --max-pages 20
+```
 
 [docs](https://docs.scrapegraphai.com/api-reference/crawl?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Monitor
 
+Schedule a page to be re-scraped on a cron interval and (optionally) post diffs to a webhook. Actions: `create`, `list`, `get`, `update`, `pause`, `resume`, `delete`, `activity`.
+
+```bash
+just-scrape monitor create \
+  --url https://store.example.com/pricing \
+  --interval 1h \
+  --webhook-url https://hooks.example.com/pricing
+just-scrape monitor list
+just-scrape monitor activity --id mon_abc123 --limit 50
+just-scrape monitor pause --id mon_abc123
+```
+
+`--interval` accepts a cron expression (`0 * * * *`) or shorthand (`1h`, `30m`, `1d`).
+
 [docs](https://docs.scrapegraphai.com/api-reference/monitor?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## History
+
+Browse past requests. Interactive by default (arrow keys); pass an ID to view a specific request. Services: `scrape`, `extract`, `search`, `crawl`, `monitor`.
+
+```bash
+just-scrape history                                    # all services, interactive
+just-scrape history extract
+just-scrape history scrape req_abc123 --json
+just-scrape history crawl --json --page-size 100 | jq '.[] | {id, status}'
+```
 
 [docs](https://docs.scrapegraphai.com/api-reference/history?utm_source=skil&utm_medium=readme&utm_campaign=skill)
 
 ## Credits
 
+Check your remaining credit balance.
+
 ```bash id="m6c9tb"
 just-scrape credits
+just-scrape credits --json | jq '.remaining'
 ```
 
 ## Validate
+
+Health-check the API and validate your key.
 
 ```bash id="c2a2f9"
 just-scrape validate
