@@ -290,7 +290,7 @@ just-scrape scrape https://protected.example.com --mode js --stealth
 | Variable | Description | Default |
 |---|---|---|
 | `SGAI_API_KEY` | ScrapeGraph API key | — |
-| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/api/v2` |
+| `SGAI_API_URL` | Override API base URL | `https://v2-api.scrapegraphai.com` |
 | `SGAI_TIMEOUT` | Request timeout (seconds) | `120` |
 | `SGAI_DEBUG` | Debug logging to stderr (`1` to enable) | `0` |
 
