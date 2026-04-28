@@ -65,7 +65,7 @@ Browse the skill: [skills.sh/scrapegraphai/just-scrape/just-scrape](https://skil
 
 ## Configuration
 
-The CLI needs a ScrapeGraph API key. Get one at [dashboard.scrapegraphai.com](https://dashboard.scrapegraphai.com?utm_source=skil&utm_medium=readme&utm_campaign=skill).
+The CLI needs a ScrapeGraph API key. Get one at [https://scrapegraphai.com/dashboard](https://scrapegraphai.com/dashboard?utm_source=skil&utm_medium=readme&utm_campaign=skill).
 
 Four ways to provide it:
 
