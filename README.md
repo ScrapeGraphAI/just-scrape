@@ -1,8 +1,8 @@
 # just-scrape
 
-Command-line interface for ScrapeGraph AI. This repo contains the CLI source, command modules, build setup, smoke tests, demo assets, and the installable coding-agent skill.
+![ScrapeGraph AI](media/images/banner.png)
 
-![Demo Video](/assets/demo.gif)
+Command-line interface for ScrapeGraph AI. This repo contains the CLI source, command modules, build setup, smoke tests, demo assets, and the installable coding-agent skill.
 
 ## Scope
 
@@ -54,6 +54,9 @@ just-scrape/
 ├── assets/
 │   ├── demo.gif
 │   └── demo.mp4
+├── media/
+│   └── images/
+│       └── banner.png
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts
