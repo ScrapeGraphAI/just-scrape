@@ -1,6 +1,10 @@
 ---
 name: just-scrape
-description: Search, scrape, crawl, extract structured data, and monitor web pages via the ScrapeGraph AI CLI. Use when the user asks to search the web, scrape a webpage, grab content from a URL, extract JSON from a site, crawl documentation or site sections, monitor a page for changes, inspect request history, check ScrapeGraph credits, or validate API setup.
+description: >-
+  This skill should be used when the user asks to "scrape this page", "crawl a website",
+  "extract data from", "grab content from URL", "monitor this page", "search the web and
+  scrape", "get JSON from a site", or wants to extract structured data from web pages using
+  ScrapeGraph AI.
 compatibility: "Requires the just-scrape CLI (`npm install -g just-scrape`). Requires `SGAI_API_KEY` for ScrapeGraph AI requests."
 license: MIT
 allowed-tools: Bash
