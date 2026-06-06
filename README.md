@@ -1,12 +1,12 @@
 # just-scrape
 
-![ScrapeGraph AI](media/images/banner.png)
+![ScrapeGraphAI](media/images/banner.png)
 
-Command-line interface for ScrapeGraph AI. This repo contains the CLI source, command modules, build setup, smoke tests, demo assets, and the installable coding-agent skill.
+Command-line interface for ScrapeGraphAI. This repo contains the CLI source, command modules, build setup, smoke tests, demo assets, and the installable coding-agent skill.
 
 ## Scope
 
-`just-scrape` wraps ScrapeGraph AI workflows behind a small terminal interface:
+`just-scrape` wraps ScrapeGraphAI workflows behind a small terminal interface:
 
 - `scrape` gets a known URL as markdown, html, screenshot, links, images, summary, branding, or structured JSON
 - `extract` gets structured JSON from a known URL with a prompt and optional schema
