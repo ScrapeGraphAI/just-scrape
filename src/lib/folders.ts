@@ -26,7 +26,7 @@ export async function resolveApiKey(quiet = false): Promise<string> {
 		message: "Enter your ScrapeGraph API key (get one at https://dashboard.scrapegraphai.com):",
 		placeholder: "sgai-...",
 		validate: (v) => {
-			if (!v.trim()) return "API key is required";
+			if (!v?.trim()) return "API key is required";
 		},
 	});
 
