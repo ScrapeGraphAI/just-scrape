@@ -90,12 +90,20 @@ export default defineCommand({
 
 		switch (action) {
 			case "create": {
-				if (!args.url) out.error("--url is required for create");
-				if (!args.interval) out.error("--interval is required for create");
+				const url = args.url;
+				const interval = args.interval;
+				if (!url) {
+					out.error("--url is required for create");
+					return;
+				}
+				if (!interval) {
+					out.error("--interval is required for create");
+					return;
+				}
 
 				const params: MonitorCreateRequest = {
-					url: args.url,
-					interval: args.interval,
+					url,
+					interval,
 					formats: buildFormats(args.format ?? "markdown", onInvalidFormat),
 					...(args.name && { name: args.name }),
 					...(args["webhook-url"] && { webhookUrl: args["webhook-url"] }),
