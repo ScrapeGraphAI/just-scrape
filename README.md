@@ -82,7 +82,8 @@ Package: [just-scrape](https://www.npmjs.com/package/just-scrape) on npm.
 Get an API key at [scrapegraphai.com/dashboard](https://scrapegraphai.com/dashboard).
 
 ```bash
-export SGAI_API_KEY="sgai-..."
+# Set your API key (from the dashboard) in the environment:
+export SGAI_API_KEY=<your-api-key>
 just-scrape validate
 just-scrape credits
 ```
