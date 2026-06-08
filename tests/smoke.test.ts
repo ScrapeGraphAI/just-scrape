@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { ScrapeGraphAI, crawl, extract, monitor, scrape, search } from "scrapegraph-js";
+import { crawl, extract, monitor, ScrapeGraphAI, scrape, search } from "scrapegraph-js";
 
 test("v2 SDK exports are available", () => {
 	expect(typeof scrape).toBe("function");

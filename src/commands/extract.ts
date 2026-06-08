@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
-import { extract } from "scrapegraph-js";
 import type { ExtractRequest, FetchConfig } from "scrapegraph-js";
+import { extract } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 import { parseIntArg, parseJsonArg } from "../lib/parse.js";

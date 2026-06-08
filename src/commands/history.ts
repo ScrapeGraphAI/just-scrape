@@ -1,8 +1,8 @@
 import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
-import { history } from "scrapegraph-js";
 import type { HistoryEntry, Service } from "scrapegraph-js";
+import { history } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 import { parseIntArg } from "../lib/parse.js";

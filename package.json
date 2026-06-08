@@ -16,13 +16,20 @@
 		"check": "tsc --noEmit && biome check .",
 		"prepublishOnly": "tsup"
 	},
-	"keywords": ["cli", "scraping", "ai", "scrapegraph"],
+	"keywords": [
+		"cli",
+		"scraping",
+		"ai",
+		"scrapegraph"
+	],
 	"author": "ScrapeGraph Team",
 	"license": "MIT",
 	"engines": {
 		"node": ">=22"
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"dependencies": {
 		"@clack/prompts": "^1.5.1",
 		"chalk": "^5.4.1",
