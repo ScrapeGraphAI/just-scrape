@@ -1,8 +1,8 @@
 import { defineCommand } from "citty";
-import { scrape } from "scrapegraph-js";
 import type { FetchConfig, FormatConfig, ScrapeRequest } from "scrapegraph-js";
+import { scrape } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
-import { BASE_FORMATS, type BaseFormat, type HtmlMode, buildBaseFormat } from "../lib/formats.js";
+import { BASE_FORMATS, type BaseFormat, buildBaseFormat, type HtmlMode } from "../lib/formats.js";
 import * as log from "../lib/log.js";
 import { parseIntArg, parseJsonArg } from "../lib/parse.js";
 

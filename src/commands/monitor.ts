@@ -1,13 +1,13 @@
 import * as p from "@clack/prompts";
 import chalk from "chalk";
 import { defineCommand } from "citty";
-import { monitor } from "scrapegraph-js";
 import type {
 	FetchConfig,
 	FormatConfig,
 	MonitorCreateRequest,
 	MonitorUpdateRequest,
 } from "scrapegraph-js";
+import { monitor } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import { BASE_FORMATS, type BaseFormat, buildBaseFormat } from "../lib/formats.js";
 import * as log from "../lib/log.js";

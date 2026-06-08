@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
-import { search } from "scrapegraph-js";
 import type { FetchConfig, SearchRequest } from "scrapegraph-js";
+import { search } from "scrapegraph-js";
 import { resolveApiKey } from "../lib/folders.js";
 import * as log from "../lib/log.js";
 import { parseIntArg, parseJsonArg } from "../lib/parse.js";
