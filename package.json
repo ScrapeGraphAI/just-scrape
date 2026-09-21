@@ -34,7 +34,7 @@
 		"@clack/prompts": "^1.5.1",
 		"chalk": "^5.4.1",
 		"citty": "^0.2.2",
-		"dotenv": "^17.2.4",
+		"dotenv": "^18.0.0",
 		"scrapegraph-js": "^2.1.0"
 	},
 	"devDependencies": {
